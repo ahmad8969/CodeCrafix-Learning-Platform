@@ -7,6 +7,8 @@ import {
   Settings,
   BarChart3,
   GraduationCap,
+  FolderTree,
+  Layers3,
 } from 'lucide-react'
 import { ROLES, ROUTES } from '@/constants'
 
@@ -16,6 +18,8 @@ export const NAV_BY_ROLE = {
     { to: `${ROUTES.SUPER_ADMIN}/users`, label: 'All Users', icon: Users },
     { to: `${ROUTES.SUPER_ADMIN}/admins`, label: 'Admins', icon: Shield },
     { to: `${ROUTES.SUPER_ADMIN}/courses`, label: 'Courses', icon: BookOpen },
+    { to: `${ROUTES.SUPER_ADMIN}/categories`, label: 'Categories', icon: FolderTree },
+    { to: `${ROUTES.SUPER_ADMIN}/batches`, label: 'Batches', icon: Layers3 },
     { to: `${ROUTES.SUPER_ADMIN}/reports`, label: 'Reports', icon: BarChart3 },
     { to: `${ROUTES.SUPER_ADMIN}/system`, label: 'System', icon: Settings },
   ],
@@ -24,6 +28,8 @@ export const NAV_BY_ROLE = {
     { to: `${ROUTES.ADMIN}/users`, label: 'Users', icon: Users },
     { to: `${ROUTES.ADMIN}/teachers`, label: 'Teachers', icon: GraduationCap },
     { to: `${ROUTES.ADMIN}/courses`, label: 'Courses', icon: BookOpen },
+    { to: `${ROUTES.ADMIN}/categories`, label: 'Categories', icon: FolderTree },
+    { to: `${ROUTES.ADMIN}/batches`, label: 'Batches', icon: Layers3 },
     { to: `${ROUTES.ADMIN}/system`, label: 'System', icon: Shield },
   ],
   [ROLES.TEACHER]: [

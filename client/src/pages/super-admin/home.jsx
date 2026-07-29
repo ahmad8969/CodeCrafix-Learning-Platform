@@ -1,11 +1,5 @@
-import { PortalPlaceholder } from '@/pages/_shared/portal-placeholder'
+import { CourseDashboardOverview } from '@/components/dashboard/course-dashboard-overview'
 
 export default function SuperAdminHomePage() {
-  return (
-    <PortalPlaceholder
-      role="super admin"
-      title="Super Admin overview"
-      description="Full platform control shell — modules arrive in later prompts."
-    />
-  )
+  return <CourseDashboardOverview roleLabel="Super Admin" />
 }

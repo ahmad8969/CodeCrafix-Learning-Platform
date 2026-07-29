@@ -184,14 +184,79 @@
   .elevation-3 {
     box-shadow: var(--elevation-3);
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .prose-curriculum {
+    @apply text-sm leading-7 text-foreground;
+  }
+
+  .prose-curriculum h1 {
+    @apply mb-3 mt-6 text-2xl font-extrabold;
+  }
+
+  .prose-curriculum h2 {
+    @apply mb-2 mt-5 text-xl font-bold;
+  }
+
+  .prose-curriculum h3 {
+    @apply mb-2 mt-4 text-lg font-semibold;
+  }
+
+  .prose-curriculum p {
+    @apply mb-3 text-muted-foreground;
+  }
+
+  .prose-curriculum ul {
+    @apply mb-3 list-disc space-y-1 pl-5 text-muted-foreground;
+  }
+
+  .prose-curriculum ol {
+    @apply mb-3 list-decimal space-y-1 pl-5 text-muted-foreground;
+  }
+
+  .prose-curriculum blockquote {
+    @apply my-3 border-l-2 border-primary/50 pl-3 italic text-muted-foreground;
+  }
+
+  .prose-curriculum pre {
+    @apply mb-3 overflow-x-auto rounded-xl border border-border bg-muted/40 p-3 font-mono text-xs;
+  }
+
+  .prose-curriculum code {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-[0.85em];
+  }
+
+  .prose-curriculum pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose-curriculum a {
+    @apply text-primary underline-offset-2 hover:underline;
+  }
+
+  .prose-curriculum table {
+    @apply mb-3 w-full border-collapse text-left text-xs;
+  }
+
+  .prose-curriculum th,
+  .prose-curriculum td {
+    @apply border border-border px-2 py-1;
+  }
+
+  .prose-curriculum img {
+    @apply my-3 max-w-full rounded-xl;
   }
 }
+
+@media print {
+  .fixed,
+  aside,
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  main {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+

@@ -30,6 +30,17 @@ import AdminSystemPage from '@/pages/admin/system'
 import SuperAdminHomePage from '@/pages/super-admin/home'
 import SuperAdminPlaceholderPage from '@/pages/super-admin/placeholder'
 import { PortalPlaceholder } from '@/pages/_shared/portal-placeholder'
+import CoursesListPage from '@/pages/courses/courses-list'
+import CourseCreatePage from '@/pages/courses/course-create'
+import CourseEditPage from '@/pages/courses/course-edit'
+import CourseDetailsPage from '@/pages/courses/course-details'
+import CategoriesListPage from '@/pages/categories/categories-list'
+import CategoryCreatePage, { CategoryEditPage } from '@/pages/categories/category-form'
+import BatchesListPage from '@/pages/batches/batches-list'
+import CurriculumBuilderPage from '@/pages/curriculum/curriculum-builder'
+import LessonEditPage from '@/pages/curriculum/lesson-edit'
+import LessonViewPage from '@/pages/curriculum/lesson-view'
+import StudentLearnPage from '@/pages/curriculum/student-learn'
 
 export function AppRouter() {
   return (
@@ -81,6 +92,8 @@ export function AppRouter() {
         <Route index element={<StudentHomePage />} />
         <Route path="courses" element={<StudentCoursesPage />} />
         <Route path="assignments" element={<StudentAssignmentsPage />} />
+        <Route path="learn/:courseId" element={<StudentLearnPage />} />
+        <Route path="learn/:courseId/lessons/:lessonId" element={<LessonViewPage />} />
       </Route>
 
       <Route
@@ -94,16 +107,11 @@ export function AppRouter() {
         <Route index element={<TeacherHomePage />} />
         <Route path="classes" element={<TeacherClassesPage />} />
         <Route path="reviews" element={<TeacherReviewsPage />} />
-        <Route
-          path="courses"
-          element={
-            <PortalPlaceholder
-              role="teacher"
-              title="Courses"
-              description="Teacher courses placeholder."
-            />
-          }
-        />
+        <Route path="courses" element={<CoursesListPage />} />
+        <Route path="courses/:id" element={<CourseDetailsPage />} />
+        <Route path="courses/:id/curriculum" element={<CurriculumBuilderPage />} />
+        <Route path="courses/:id/curriculum/lessons/:lessonId" element={<LessonViewPage />} />
+        <Route path="courses/:id/curriculum/lessons/:lessonId/edit" element={<LessonEditPage />} />
       </Route>
 
       <Route
@@ -123,12 +131,17 @@ export function AppRouter() {
             <PortalPlaceholder role="admin" title="Teachers" description="Admin teachers placeholder." />
           }
         />
-        <Route
-          path="courses"
-          element={
-            <PortalPlaceholder role="admin" title="Courses" description="Admin courses placeholder." />
-          }
-        />
+        <Route path="courses" element={<CoursesListPage />} />
+        <Route path="courses/new" element={<CourseCreatePage />} />
+        <Route path="courses/:id" element={<CourseDetailsPage />} />
+        <Route path="courses/:id/edit" element={<CourseEditPage />} />
+        <Route path="courses/:id/curriculum" element={<CurriculumBuilderPage />} />
+        <Route path="courses/:id/curriculum/lessons/:lessonId" element={<LessonViewPage />} />
+        <Route path="courses/:id/curriculum/lessons/:lessonId/edit" element={<LessonEditPage />} />
+        <Route path="categories" element={<CategoriesListPage />} />
+        <Route path="categories/new" element={<CategoryCreatePage />} />
+        <Route path="categories/:id/edit" element={<CategoryEditPage />} />
+        <Route path="batches" element={<BatchesListPage />} />
       </Route>
 
       <Route
@@ -142,7 +155,17 @@ export function AppRouter() {
         <Route index element={<SuperAdminHomePage />} />
         <Route path="users" element={<SuperAdminPlaceholderPage title="All Users" />} />
         <Route path="admins" element={<SuperAdminPlaceholderPage title="Admins" />} />
-        <Route path="courses" element={<SuperAdminPlaceholderPage title="Courses" />} />
+        <Route path="courses" element={<CoursesListPage />} />
+        <Route path="courses/new" element={<CourseCreatePage />} />
+        <Route path="courses/:id" element={<CourseDetailsPage />} />
+        <Route path="courses/:id/edit" element={<CourseEditPage />} />
+        <Route path="courses/:id/curriculum" element={<CurriculumBuilderPage />} />
+        <Route path="courses/:id/curriculum/lessons/:lessonId" element={<LessonViewPage />} />
+        <Route path="courses/:id/curriculum/lessons/:lessonId/edit" element={<LessonEditPage />} />
+        <Route path="categories" element={<CategoriesListPage />} />
+        <Route path="categories/new" element={<CategoryCreatePage />} />
+        <Route path="categories/:id/edit" element={<CategoryEditPage />} />
+        <Route path="batches" element={<BatchesListPage />} />
         <Route path="reports" element={<SuperAdminPlaceholderPage title="Reports" />} />
         <Route path="system" element={<SuperAdminPlaceholderPage title="System" />} />
       </Route>

@@ -1,11 +1,5 @@
-import { PortalPlaceholder } from '@/pages/_shared/portal-placeholder'
+import { CourseDashboardOverview } from '@/components/dashboard/course-dashboard-overview'
 
 export default function AdminHomePage() {
-  return (
-    <PortalPlaceholder
-      role="admin"
-      title="Admin overview"
-      description="Admin portal shell — analytics and management arrive later."
-    />
-  )
+  return <CourseDashboardOverview roleLabel="Admin" />
 }
