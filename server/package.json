@@ -9,7 +9,12 @@
     "lint": "eslint src --ext .js",
     "seed": "node src/utils/seed.js",
     "seed:courses": "node src/utils/seed-courses.js",
-    "seed:curriculum": "node src/utils/seed-curriculum.js"
+    "seed:curriculum": "node src/utils/seed-curriculum.js",
+    "seed:practice": "node src/utils/seed-practice.js",
+    "seed:assignments": "node src/utils/seed-assignments.js",
+    "seed:quiz": "node src/utils/seed-quiz.js",
+    "seed:enrollment": "node src/utils/seed-enrollment.js",
+    "seed:live": "node src/utils/seed-live-classes.js"
   },
   "license": "ISC",
   "type": "commonjs",
@@ -25,6 +30,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.8.1",
     "morgan": "^1.11.0",
+    "multer": "^2.2.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1"
   },

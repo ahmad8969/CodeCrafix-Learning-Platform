@@ -35,10 +35,26 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    bio: { type: String, default: '', maxlength: 1000 },
+    dateOfBirth: { type: Date, default: null },
+    address: { type: String, default: '', maxlength: 500 },
+    guardian: {
+      name: { type: String, default: '', trim: true },
+      relation: { type: String, default: '', trim: true },
+      phone: { type: String, default: '', trim: true },
+      email: { type: String, default: '', trim: true, lowercase: true },
+    },
     role: {
       type: String,
       enum: Object.values(ROLES),
       default: ROLES.STUDENT,
+      index: true,
+    },
+    /** Multi-tenant membership (null = platform default institute) */
+    institute: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Institute',
+      default: null,
       index: true,
     },
     status: {
@@ -100,6 +116,10 @@ userSchema.methods.toSafeObject = function toSafeObject() {
     email: this.email,
     phoneNumber: this.phoneNumber,
     profileImage: this.profileImage,
+    bio: this.bio,
+    dateOfBirth: this.dateOfBirth,
+    address: this.address,
+    guardian: this.guardian,
     role: this.role,
     status: this.status,
     emailVerified: this.emailVerified,

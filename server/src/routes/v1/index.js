@@ -27,5 +27,12 @@ router.use('/topics', topicRoutes)
 router.use('/lessons', lessonRoutes)
 router.use('/resources', resourceRoutes)
 router.use('/learning', require('./learning.routes'))
+router.use('/workspaces', require('./workspace.routes'))
+router.use('/platform', require('./platform.routes'))
+router.use('/practice', require('./practice.routes'))
+router.use('/assignments', require('./assignment.routes'))
+router.use('/quizzes', require('./quiz.routes'))
+router.use('/enrollments', require('./enrollment.routes'))
+router.use('/live-classes', require('./live-class.routes'))
 
 module.exports = router

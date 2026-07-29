@@ -1,4 +1,5 @@
 const authService = require('../services/auth.service')
+const auditService = require('../services/audit.service')
 const { asyncHandler, sendSuccess } = require('../utils/helpers')
 const { setRefreshCookie, clearRefreshCookie, getRefreshCookie } = require('../utils/cookies')
 
@@ -6,6 +7,12 @@ const login = asyncHandler(async (req, res) => {
   const { email, password, rememberMe } = req.body
   const result = await authService.login({ email, password, rememberMe: Boolean(rememberMe) })
   setRefreshCookie(res, result.refreshToken, Boolean(rememberMe))
+  req.user = result.user
+  await auditService.record(req, {
+    action: 'login',
+    resourceType: 'User',
+    resourceId: result.user?._id || result.user?.id,
+  })
   sendSuccess(
     res,
     {
@@ -17,6 +24,11 @@ const login = asyncHandler(async (req, res) => {
 })
 
 const logout = asyncHandler(async (req, res) => {
+  await auditService.record(req, {
+    action: 'logout',
+    resourceType: 'User',
+    resourceId: req.user?._id,
+  })
   await authService.logout(req.user?._id)
   clearRefreshCookie(res)
   sendSuccess(res, null, 'Logged out successfully')

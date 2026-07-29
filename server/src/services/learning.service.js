@@ -14,10 +14,20 @@ const { parseListQuery } = require('../utils/query')
 async function getLessonExperience(lessonId, userId, reqContext) {
   const lesson = await lessonRepo.findById(lessonId)
   if (!lesson) throw new ApiError(404, 'Lesson not found')
-  await assertCourseAccess(lesson.course, reqContext)
+  await assertCourseAccess(lesson.course, reqContext, {
+    requireEnrollment: reqContext.courseScope === 'published',
+  })
   if (reqContext.courseScope === 'published') {
     if (lesson.status !== 'published' && !lesson.previewAllowed) {
       throw new ApiError(403, 'Lesson not available')
+    }
+    // Learning path gate
+    if (lesson.topic && userId) {
+      const learningPath = require('./learning-path.service')
+      const access = await learningPath.evaluateTopicAccess(userId, lesson.topic)
+      if (!access.unlocked) {
+        throw new ApiError(403, access.reason || 'Topic is locked by learning path rules')
+      }
     }
   }
 
@@ -233,11 +243,28 @@ async function updateProgress(userId, lessonId, { scrollPercent, completed } = {
   const update = { lastViewedAt: new Date() }
   if (scrollPercent != null) update.scrollPercent = Math.min(100, Math.max(0, Number(scrollPercent)))
   if (completed != null) update.completed = Boolean(completed)
-  return LessonView.findOneAndUpdate(
+  const view = await LessonView.findOneAndUpdate(
     { user: userId, lesson: lessonId },
     { ...update, user: userId, lesson: lessonId, course: lesson.course },
     { upsert: true, new: true }
   )
+  if (completed) {
+    const progressService = require('./progress.service')
+    await progressService.trackProgress({
+      userId,
+      courseId: lesson.course,
+      lessonId,
+      eventType: 'lesson_completed',
+      value: 1,
+    })
+    const learningPath = require('./learning-path.service')
+    const studentProgress = require('./student-progress.service')
+    if (await learningPath.isTopicCompleted(userId, lesson.topic)) {
+      await learningPath.markTopicCompleted(userId, lesson.topic, lesson.course)
+    }
+    await studentProgress.recomputeStudentProgress(userId, lesson.course)
+  }
+  return view
 }
 
 async function getRecentlyViewed(userId, limit = 5) {
@@ -250,21 +277,18 @@ async function getRecentlyViewed(userId, limit = 5) {
 }
 
 async function getLearningDashboard(userId) {
-  const [bookmarksCount, recent, continueViews] = await Promise.all([
+  const studentProgress = require('./student-progress.service')
+  const [bookmarksCount, recent, continueLearning] = await Promise.all([
     Bookmark.countDocuments({ user: userId }),
     getRecentlyViewed(userId, 5),
-    LessonView.find({ user: userId, completed: false })
-      .sort({ lastViewedAt: -1 })
-      .limit(1)
-      .populate({ path: 'lesson', select: 'title estimatedReadingTime course' })
-      .populate({ path: 'course', select: 'title' })
-      .lean(),
+    studentProgress.getContinueLearning(userId),
   ])
+  const summary = await require('./progress.service').summaryForUser(userId)
   return {
     bookmarksCount,
     recentlyViewed: recent,
-    continueLearning: continueViews[0] || null,
-    learningStreakPlaceholder: 0,
+    continueLearning: continueLearning || null,
+    learningStreakPlaceholder: summary.byType?.daily_streak?.total || 0,
   }
 }
 

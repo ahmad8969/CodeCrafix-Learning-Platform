@@ -27,6 +27,19 @@ const topicSchema = new mongoose.Schema(
     learningObjectives: [{ type: String, trim: true }],
     keywords: [{ type: String, trim: true }],
     tags: [{ type: String, trim: true }],
+    /**
+     * Learning Path unlock rules (Prompt 010).
+     * type: previous_topic_completed | minimum_quiz_score | …
+     * config: { quizId?, minScore?, practiceCategory?, minutes?, assignmentId? }
+     */
+    unlockRules: [
+      {
+        type: { type: String, required: true },
+        config: { type: mongoose.Schema.Types.Mixed, default: {} },
+        enabled: { type: Boolean, default: true },
+      },
+    ],
+    isEntryTopic: { type: Boolean, default: false },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     deletedAt: { type: Date, default: null, index: true },

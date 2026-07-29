@@ -159,23 +159,74 @@ Practice building a page outline, then move on to forms and accessible inputs.
       week: week._id,
       topic: topic._id,
       title: 'Introduction to Semantic HTML',
-      lessonType: 'markdown',
+      lessonType: 'code_example',
       content: richContent,
       summary: 'Learn why semantic tags improve accessibility and SEO.',
       estimatedReadingTime: 12,
       displayOrder: 0,
       status: 'published',
       previewAllowed: true,
+      workspaceType: 'theory_practice',
+      enableLiveCoding: true,
+      languageIds: ['html', 'css', 'javascript'],
+      primaryLanguageId: 'html',
+      starterTemplateId: 'html_css_js',
+      codingRuntime: 'browser',
+      executionEngine: 'browser',
+      starterFiles: require('../services/workspace.service').DEFAULT_STARTER,
+      discussionEnabled: true,
+      aiEnabled: true,
+      hints: [
+        'Use semantic tags like header, main, and button.',
+        'Wire the click handler in script.js and log to the console.',
+      ],
+      expectedOutput: 'Preview shows a card with a clickable button; console logs click counts.',
+      challengePlaceholder: 'Challenge: change the accent color and log a greeting on load.',
+      solutionPlaceholder: 'Solution available after instructor unlock (placeholder).',
+      evaluation: {
+        strategy: 'expected_output',
+        expectedOutput: 'Preview shows a card with a clickable button; console logs click counts.',
+        publicTests: [],
+        hiddenTests: [],
+        maxScore: 100,
+        partialMarksEnabled: true,
+      },
       createdBy: admin._id,
       updatedBy: admin._id,
     })
-    console.log('Lesson: Introduction to Semantic HTML')
+    console.log('Lesson: Introduction to Semantic HTML (+ live coding)')
   } else {
     lesson.content = richContent
     lesson.status = 'published'
     lesson.previewAllowed = true
+    lesson.workspaceType = 'theory_practice'
+    lesson.enableLiveCoding = true
+    lesson.languageIds = ['html', 'css', 'javascript']
+    lesson.primaryLanguageId = 'html'
+    lesson.starterTemplateId = 'html_css_js'
+    lesson.codingRuntime = 'browser'
+    lesson.executionEngine = 'browser'
+    lesson.lessonType = 'code_example'
+    lesson.discussionEnabled = true
+    lesson.aiEnabled = true
+    lesson.hints = [
+      'Use semantic tags like header, main, and button.',
+      'Wire the click handler in script.js and log to the console.',
+    ]
+    lesson.expectedOutput = 'Preview shows a card with a clickable button; console logs click counts.'
+    lesson.challengePlaceholder = 'Challenge: change the accent color and log a greeting on load.'
+    lesson.solutionPlaceholder = 'Solution available after instructor unlock (placeholder).'
+    lesson.starterFiles = require('../services/workspace.service').DEFAULT_STARTER
+    lesson.evaluation = {
+      strategy: 'expected_output',
+      expectedOutput: lesson.expectedOutput,
+      publicTests: [],
+      hiddenTests: [],
+      maxScore: 100,
+      partialMarksEnabled: true,
+    }
     await lesson.save()
-    console.log('Lesson updated: Introduction to Semantic HTML')
+    console.log('Lesson updated: Introduction to Semantic HTML (+ live coding)')
   }
 
   const existingRes = await Resource.findOne({ lesson: lesson._id, title: 'MDN HTML Elements' })

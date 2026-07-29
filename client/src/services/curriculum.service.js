@@ -45,3 +45,19 @@ export const learningService = {
   dashboard: async () => unwrap(await api.get('/learning/dashboard')),
   bookmarks: async (params) => unwrap(await api.get('/learning/bookmarks', { params })),
 }
+
+export const workspaceService = {
+  get: async (lessonId) => unwrap(await api.get(`/workspaces/lessons/${lessonId}`)),
+  starter: async (lessonId) => unwrap(await api.get(`/workspaces/lessons/${lessonId}/starter`)),
+  save: async (lessonId, payload) =>
+    unwrap(await api.post(`/workspaces/lessons/${lessonId}/save`, payload)),
+  reset: async (lessonId) => unwrap(await api.post(`/workspaces/lessons/${lessonId}/reset`)),
+  dashboard: async () => unwrap(await api.get('/workspaces/dashboard')),
+  versions: async (lessonId) => unwrap(await api.get(`/workspaces/lessons/${lessonId}/versions`)),
+  version: async (lessonId, version) =>
+    unwrap(await api.get(`/workspaces/lessons/${lessonId}/versions/${version}`)),
+  compareVersions: async (lessonId, a, b) =>
+    unwrap(await api.get(`/workspaces/lessons/${lessonId}/versions/compare`, { params: { a, b } })),
+  restoreVersion: async (lessonId, version) =>
+    unwrap(await api.post(`/workspaces/lessons/${lessonId}/versions/${version}/restore`)),
+}

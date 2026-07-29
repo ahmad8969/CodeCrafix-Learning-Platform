@@ -1,7 +1,5 @@
-import { PortalPlaceholder } from '@/pages/_shared/portal-placeholder'
+import { TeacherReviewsPage } from '@/pages/assignments/student-home'
 
-export default function TeacherReviewsPage() {
-  return (
-    <PortalPlaceholder role="teacher" title="Reviews" description="Reviews are not part of Prompt 001." />
-  )
+export default function TeacherReviewsRoute() {
+  return <TeacherReviewsPage />
 }

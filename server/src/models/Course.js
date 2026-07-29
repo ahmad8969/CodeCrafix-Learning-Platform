@@ -19,6 +19,11 @@ const courseSettingsSchema = new mongoose.Schema(
     enableAiAssistant: { type: Boolean, default: false },
     enableAnnouncements: { type: Boolean, default: true },
     enableProgressTracking: { type: Boolean, default: true },
+    enableCodingWorkspace: { type: Boolean, default: true },
+    enableGamification: { type: Boolean, default: false },
+    enableSessionRecording: { type: Boolean, default: false },
+    enableOfflineSync: { type: Boolean, default: false },
+    enableVersionHistory: { type: Boolean, default: true },
   },
   { _id: false }
 )
@@ -84,6 +89,9 @@ const courseSchema = new mongoose.Schema(
     seoKeywords: [{ type: String, trim: true }],
 
     settings: { type: courseSettingsSchema, default: () => ({}) },
+
+    /** Multi-tenant scope (null = default / single-tenant mode) */
+    institute: { type: mongoose.Schema.Types.ObjectId, ref: 'Institute', default: null, index: true },
 
     publishedAt: { type: Date, default: null },
     studentCountPlaceholder: { type: Number, default: 0, min: 0 },

@@ -1,6 +1,11 @@
+const { WORKSPACE_TYPES, WORKSPACE_TYPE_META, getWorkspaceTypeMeta } = require('./workspace-types')
+
 module.exports = {
   APP_NAME: 'CodeCrafters Learning Platform',
   API_VERSION: 'v1',
+  WORKSPACE_TYPES,
+  WORKSPACE_TYPE_META,
+  getWorkspaceTypeMeta,
   ROLES: Object.freeze({
     SUPER_ADMIN: 'super_admin',
     ADMIN: 'admin',
@@ -38,8 +43,17 @@ module.exports = {
     ACTIVE: 'active',
     COMPLETED: 'completed',
     CANCELLED: 'cancelled',
+    ARCHIVED: 'archived',
   }),
-  BATCH_DAYS: Object.freeze(['friday', 'saturday', 'sunday']),
+  BATCH_DAYS: Object.freeze([
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+  ]),
   CATEGORY_STATUS: Object.freeze({
     ACTIVE: 'active',
     INACTIVE: 'inactive',

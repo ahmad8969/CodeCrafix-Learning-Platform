@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -49,6 +49,8 @@ const emptyBatch = {
 
 export default function BatchesListPage() {
   const [searchParams] = useSearchParams()
+  const location = useLocation()
+  const batchBase = location.pathname.replace(/\/batches.*/, '/batches')
   const courseFilter = searchParams.get('course') || 'all'
   const queryClient = useQueryClient()
 
@@ -134,13 +136,9 @@ export default function BatchesListPage() {
       label: 'Batch',
       sortable: true,
       render: (row) => (
-        <button
-          type="button"
-          className="text-left font-medium hover:text-primary"
-          onClick={() => openEdit(row)}
-        >
+        <Link to={`${batchBase}/${row._id}`} className="font-medium hover:text-primary">
           {row.name}
-        </button>
+        </Link>
       ),
     },
     {

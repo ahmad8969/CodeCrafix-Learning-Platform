@@ -37,6 +37,11 @@ export const batchService = {
   update: async (id, payload) => unwrap(await api.patch(`/batches/${id}`, payload)),
   remove: async (id) => unwrap(await api.delete(`/batches/${id}`)),
   restore: async (id) => unwrap(await api.post(`/batches/${id}/restore`)),
+  students: async (id) => unwrap(await api.get(`/batches/${id}/students`)),
+  analytics: async (id) => unwrap(await api.get(`/batches/${id}/analytics`)),
+  calendar: async (id) => unwrap(await api.get(`/batches/${id}/calendar`)),
+  archive: async (id) => unwrap(await api.post(`/batches/${id}/archive`)),
+  clone: async (id) => unwrap(await api.post(`/batches/${id}/clone`)),
 }
 
 export const usersService = {

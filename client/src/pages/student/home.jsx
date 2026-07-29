@@ -1,17 +1,35 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Bookmark, Flame, History, PlayCircle } from 'lucide-react'
+import { Bookmark, Code2, Flame, History, PlayCircle, Timer } from 'lucide-react'
 import { PageTransition } from '@/components/ui/motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { learningService } from '@/services/curriculum.service'
+import { learningService, workspaceService } from '@/services/curriculum.service'
+import { assignmentService } from '@/services/assignment.service'
+import { quizService } from '@/services/quiz.service'
 import { ROUTES } from '@/constants'
+
+function formatMinutes(seconds = 0) {
+  return `${Math.max(0, Math.round(Number(seconds) / 60))} min`
+}
 
 export default function StudentHomePage() {
   const { data, isLoading } = useQuery({
     queryKey: ['learning-dashboard'],
     queryFn: () => learningService.dashboard(),
+  })
+  const { data: coding, isLoading: codingLoading } = useQuery({
+    queryKey: ['workspace-dashboard'],
+    queryFn: () => workspaceService.dashboard(),
+  })
+  const { data: assignments } = useQuery({
+    queryKey: ['assignment-student-dash'],
+    queryFn: () => assignmentService.studentDashboard(),
+  })
+  const { data: quizzes } = useQuery({
+    queryKey: ['quiz-student-dash'],
+    queryFn: () => quizService.studentDashboard(),
   })
 
   const continueItem = data?.continueLearning
@@ -20,22 +38,83 @@ export default function StudentHomePage() {
       ? `${ROUTES.STUDENT}/learn/${continueItem.course._id || continueItem.course}/lessons/${continueItem.lesson._id || continueItem.lesson}`
       : `${ROUTES.STUDENT}/courses`
 
+  const codingContinue = coding?.continueCoding
+  const codingHref =
+    codingContinue?.lesson && codingContinue?.course
+      ? `${ROUTES.STUDENT}/learn/${codingContinue.course._id || codingContinue.course}/lessons/${codingContinue.lesson._id || codingContinue.lesson}`
+      : continueHref
+
   return (
     <PageTransition className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Student overview</p>
-          <h1 className="text-2xl font-extrabold">Keep learning</h1>
+          <h1 className="text-2xl font-extrabold">Continue where you left off</h1>
           <p className="text-muted-foreground">
-            Continue where you left off, revisit bookmarks, and track your streak.
+            Jump back into your next unfinished lesson across enrolled courses.
           </p>
         </div>
-        <Button asChild>
-          <Link to={continueHref}>
-            <PlayCircle className="size-4" /> Continue learning
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to={codingHref}>
+              <Code2 className="size-4" /> Continue coding
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link to={continueHref}>
+              <PlayCircle className="size-4" /> Continue learning
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to={`${ROUTES.STUDENT}/assignments`}>Assignments</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to={`${ROUTES.STUDENT}/quizzes`}>Quizzes</Link>
+          </Button>
+        </div>
       </div>
+
+      {(quizzes?.availableQuizzes || []).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Available quizzes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {quizzes.availableQuizzes.slice(0, 3).map((q) => (
+              <Link
+                key={q._id}
+                to={`${ROUTES.STUDENT}/quizzes/${q._id}`}
+                className="flex justify-between gap-2 hover:text-primary"
+              >
+                <span>{q.title}</span>
+                <span className="text-xs text-muted-foreground">{q.timeLimitMinutes} min</span>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {(assignments?.upcomingDeadlines || []).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Upcoming assignment deadlines</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {assignments.upcomingDeadlines.slice(0, 3).map((a) => (
+              <Link
+                key={a._id}
+                to={`${ROUTES.STUDENT}/assignments/${a._id}`}
+                className="flex justify-between gap-2 hover:text-primary"
+              >
+                <span>{a.title}</span>
+                <span className="text-xs text-muted-foreground">
+                  {a.dueAt ? new Date(a.dueAt).toLocaleDateString() : ''}
+                </span>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -49,9 +128,9 @@ export default function StudentHomePage() {
           value={isLoading ? null : data?.bookmarksCount || 0}
         />
         <StatCard
-          icon={PlayCircle}
-          label="Continue"
-          value={continueItem?.lesson?.title ? 'Ready' : 'Browse'}
+          icon={Timer}
+          label="Coding time"
+          value={codingLoading ? null : formatMinutes(coding?.codingTimeSeconds)}
         />
         <StatCard
           icon={Flame}
@@ -61,7 +140,7 @@ export default function StudentHomePage() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Recently viewed lessons</CardTitle>
@@ -121,6 +200,33 @@ export default function StudentHomePage() {
                 No in-progress lesson yet. Browse published courses to begin.
               </p>
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="inline-flex items-center gap-2 text-base">
+              <Code2 className="size-4 text-primary" /> Coding lab
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="rounded-xl border border-border px-3 py-2">
+                <p className="text-xs text-muted-foreground">Saved projects</p>
+                <p className="text-lg font-bold">
+                  {codingLoading ? '—' : coding?.savedProjects || 0}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border px-3 py-2">
+                <p className="text-xs text-muted-foreground">Last session</p>
+                <p className="truncate text-sm font-semibold">
+                  {coding?.lastCodingSession?.lesson?.title || 'None yet'}
+                </p>
+              </div>
+            </div>
+            <Button asChild size="sm" className="w-full">
+              <Link to={codingHref}>Continue coding</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
