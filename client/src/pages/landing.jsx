@@ -46,7 +46,7 @@ export default function LandingPage() {
               <Link to={ROUTES.LOGIN}>Sign in</Link>
             </Button>
             <Button asChild size="sm">
-              <Link to={ROUTES.REGISTER}>
+              <Link to={ROUTES.LOGIN}>
                 Get started <ArrowRight className="size-3.5" />
               </Link>
             </Button>
@@ -75,12 +75,12 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link to={ROUTES.REGISTER}>
+              <Link to={ROUTES.LOGIN}>
                 Start learning <ArrowRight className="size-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to={ROUTES.STUDENT}>Preview student shell</Link>
+              <Link to={ROUTES.LOGIN}>Sign in to your portal</Link>
             </Button>
           </div>
         </motion.div>

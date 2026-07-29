@@ -3,32 +3,30 @@ const connectDB = require('../config/db')
 const User = require('../models/User')
 const { ROLES, USER_STATUS } = require('../constants')
 
+const DEMO_PASSWORD = 'Password1'
+
 const users = [
   {
     fullName: 'Super Admin',
     email: 'superadmin@codecrafters.dev',
-    password: 'SuperAdmin1',
     role: ROLES.SUPER_ADMIN,
     phoneNumber: '+10000000001',
   },
   {
     fullName: 'Platform Admin',
     email: 'admin@codecrafters.dev',
-    password: 'Admin1234',
     role: ROLES.ADMIN,
     phoneNumber: '+10000000002',
   },
   {
     fullName: 'Maya Chen',
     email: 'teacher@codecrafters.dev',
-    password: 'Teacher12',
     role: ROLES.TEACHER,
     phoneNumber: '+10000000003',
   },
   {
     fullName: 'Alex Rivera',
     email: 'student@codecrafters.dev',
-    password: 'Student12',
     role: ROLES.STUDENT,
     phoneNumber: '+10000000004',
   },
@@ -42,15 +40,16 @@ async function seed() {
     if (existing) {
       existing.fullName = entry.fullName
       existing.role = entry.role
+      existing.phoneNumber = entry.phoneNumber
       existing.status = USER_STATUS.ACTIVE
       existing.emailVerified = true
-      existing.phoneNumber = entry.phoneNumber
-      existing.password = entry.password
+      existing.password = DEMO_PASSWORD
       await existing.save()
       console.log(`Updated ${entry.email}`)
     } else {
       await User.create({
         ...entry,
+        password: DEMO_PASSWORD,
         status: USER_STATUS.ACTIVE,
         emailVerified: true,
       })
@@ -58,8 +57,7 @@ async function seed() {
     }
   }
 
-  console.log('\nSeed complete. Demo accounts:')
-  users.forEach((u) => console.log(`  ${u.role.padEnd(12)} ${u.email} / ${u.password}`))
+  console.log('\nSeed complete. Demo password for all:', DEMO_PASSWORD)
   process.exit(0)
 }
 

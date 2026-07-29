@@ -1,18 +1,18 @@
-const User = require('../models/User')
-const { ApiError, asyncHandler } = require('../utils/helpers')
 const { verifyAccessToken } = require('../utils/jwt')
+const { ApiError, asyncHandler } = require('../utils/helpers')
+const User = require('../models/User')
 const { USER_STATUS, ROLES } = require('../constants')
 
-function extractAccessToken(req) {
+/**
+ * Authentication middleware — requires valid access JWT.
+ */
+const protect = asyncHandler(async (req, res, next) => {
   const header = req.headers.authorization
-  if (header?.startsWith('Bearer ')) return header.slice(7)
-  if (req.cookies?.accessToken) return req.cookies.accessToken
-  return null
-}
+  const token = header?.startsWith('Bearer ') ? header.slice(7) : null
 
-const authenticate = asyncHandler(async (req, res, next) => {
-  const token = extractAccessToken(req)
-  if (!token) throw new ApiError(401, 'Authentication required')
+  if (!token) {
+    throw new ApiError(401, 'Authentication required')
+  }
 
   let decoded
   try {
@@ -22,40 +22,43 @@ const authenticate = asyncHandler(async (req, res, next) => {
   }
 
   const user = await User.findById(decoded.id)
-  if (!user) throw new ApiError(401, 'User not found')
+  if (!user) throw new ApiError(401, 'User no longer exists')
   if (user.status !== USER_STATUS.ACTIVE) {
     throw new ApiError(403, 'Account is not active')
   }
 
   req.user = user
-  req.token = token
   next()
 })
 
-/** Alias for authenticate */
-const protect = authenticate
+/**
+ * Authorization middleware — exact role match (super_admin bypass optional).
+ */
+function authorize(...roles) {
+  const allowSuperAdmin = !roles.includes(ROLES.SUPER_ADMIN)
+    ? true
+    : roles.includes(ROLES.SUPER_ADMIN)
 
-function authorize(...allowedRoles) {
   return (req, res, next) => {
     if (!req.user) return next(new ApiError(401, 'Authentication required'))
 
-    const role = req.user.role
-    if (role === ROLES.SUPER_ADMIN) return next()
+    if (allowSuperAdmin && req.user.role === ROLES.SUPER_ADMIN) {
+      return next()
+    }
 
-    if (!allowedRoles.includes(role)) {
+    if (!roles.includes(req.user.role)) {
       return next(new ApiError(403, 'You do not have permission to access this resource'))
     }
+
     next()
   }
 }
 
-/** Role middleware alias */
+/** Alias for role-based gating */
 const roleMiddleware = authorize
 
 module.exports = {
-  authenticate,
   protect,
   authorize,
   roleMiddleware,
-  extractAccessToken,
 }

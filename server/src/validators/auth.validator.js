@@ -1,20 +1,19 @@
 const { body } = require('express-validator')
 
-const passwordRule = body('password')
-  .isString()
+const strongPassword = body('password')
   .isLength({ min: 8 })
   .withMessage('Password must be at least 8 characters')
-  .matches(/[A-Z]/)
-  .withMessage('Password must include an uppercase letter')
   .matches(/[a-z]/)
   .withMessage('Password must include a lowercase letter')
+  .matches(/[A-Z]/)
+  .withMessage('Password must include an uppercase letter')
   .matches(/[0-9]/)
   .withMessage('Password must include a number')
 
 const loginValidators = [
   body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required'),
-  body('rememberMe').optional().isBoolean().withMessage('rememberMe must be boolean'),
+  body('rememberMe').optional().isBoolean(),
 ]
 
 const forgotPasswordValidators = [
@@ -23,31 +22,36 @@ const forgotPasswordValidators = [
 
 const resetPasswordValidators = [
   body('token').notEmpty().withMessage('Reset token is required'),
-  body('email').optional().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('password')
-    .isString()
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters')
-    .matches(/[A-Z]/)
-    .withMessage('Password must include an uppercase letter')
     .matches(/[a-z]/)
     .withMessage('Password must include a lowercase letter')
+    .matches(/[A-Z]/)
+    .withMessage('Password must include an uppercase letter')
     .matches(/[0-9]/)
     .withMessage('Password must include a number'),
+  body('confirmPassword').custom((value, { req }) => {
+    if (value !== req.body.password) throw new Error('Passwords do not match')
+    return true
+  }),
 ]
 
 const changePasswordValidators = [
   body('currentPassword').notEmpty().withMessage('Current password is required'),
   body('newPassword')
-    .isString()
     .isLength({ min: 8 })
-    .withMessage('New password must be at least 8 characters')
-    .matches(/[A-Z]/)
-    .withMessage('New password must include an uppercase letter')
+    .withMessage('Password must be at least 8 characters')
     .matches(/[a-z]/)
-    .withMessage('New password must include a lowercase letter')
+    .withMessage('Password must include a lowercase letter')
+    .matches(/[A-Z]/)
+    .withMessage('Password must include an uppercase letter')
     .matches(/[0-9]/)
-    .withMessage('New password must include a number'),
+    .withMessage('Password must include a number'),
+  body('confirmPassword').custom((value, { req }) => {
+    if (value !== req.body.newPassword) throw new Error('Passwords do not match')
+    return true
+  }),
 ]
 
 module.exports = {
@@ -55,5 +59,5 @@ module.exports = {
   forgotPasswordValidators,
   resetPasswordValidators,
   changePasswordValidators,
-  passwordRule,
+  strongPassword,
 }

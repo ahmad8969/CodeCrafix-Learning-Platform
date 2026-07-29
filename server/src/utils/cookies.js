@@ -1,30 +1,34 @@
-const cookieOptions = (maxAgeMs) => {
-  const config = require('../config')
-  return {
+const config = require('../config')
+const { getRefreshMaxAgeMs } = require('./jwt')
+
+const REFRESH_COOKIE = 'codecrafters_refresh'
+
+function setRefreshCookie(res, token, rememberMe = false) {
+  res.cookie(REFRESH_COOKIE, token, {
     httpOnly: true,
-    secure: config.cookie.secure,
-    sameSite: config.cookie.sameSite,
-    maxAge: maxAgeMs,
-    path: '/',
-  }
+    secure: config.cookies.secure,
+    sameSite: config.cookies.sameSite,
+    maxAge: getRefreshMaxAgeMs(rememberMe),
+    path: '/api/v1/auth',
+  })
 }
 
-function setAuthCookies(res, { accessToken, refreshToken, rememberMe = false }) {
-  const refreshMs = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
-  res.cookie('accessToken', accessToken, cookieOptions(15 * 60 * 1000))
-  res.cookie('refreshToken', refreshToken, cookieOptions(refreshMs))
-}
-
-function clearAuthCookies(res) {
-  const config = require('../config')
-  const base = {
+function clearRefreshCookie(res) {
+  res.clearCookie(REFRESH_COOKIE, {
     httpOnly: true,
-    secure: config.cookie.secure,
-    sameSite: config.cookie.sameSite,
-    path: '/',
-  }
-  res.clearCookie('accessToken', base)
-  res.clearCookie('refreshToken', base)
+    secure: config.cookies.secure,
+    sameSite: config.cookies.sameSite,
+    path: '/api/v1/auth',
+  })
 }
 
-module.exports = { setAuthCookies, clearAuthCookies, cookieOptions }
+function getRefreshCookie(req) {
+  return req.cookies?.[REFRESH_COOKIE] || null
+}
+
+module.exports = {
+  REFRESH_COOKIE,
+  setRefreshCookie,
+  clearRefreshCookie,
+  getRefreshCookie,
+}

@@ -1,24 +1,13 @@
-import { Bell, Command, Menu, Moon, PanelLeft, Search, Sun, User } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Bell, Command, Menu, Moon, PanelLeft, Search, Sun } from 'lucide-react'
 import { useTheme } from '@/contexts/theme-context'
 import { useSidebar } from '@/contexts/sidebar-context'
-import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Breadcrumb } from '@/components/common/breadcrumb'
+import { ProfileDropdown } from '@/components/common/profile-dropdown'
 
 export function TopNavbar({ breadcrumbs = [], onOpenCommand }) {
   const { theme, toggleTheme } = useTheme()
   const { toggleCollapsed, setMobileOpen } = useSidebar()
-  const { user, logout } = useAuth()
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border/60 glass px-3 sm:px-4">
@@ -47,7 +36,7 @@ export function TopNavbar({ breadcrumbs = [], onOpenCommand }) {
         </kbd>
       </button>
 
-      <div className={cnActions()}>
+      <div className="ml-0 flex items-center gap-1.5 md:ml-2">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={onOpenCommand} aria-label="Search">
           <Search className="size-5" />
         </Button>
@@ -57,34 +46,8 @@ export function TopNavbar({ breadcrumbs = [], onOpenCommand }) {
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <Bell className="size-5" />
         </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2 pl-1.5 pr-2">
-              <Avatar className="size-8">
-                <AvatarFallback className="bg-primary/15 text-xs text-primary">
-                  {user?.name?.slice(0, 2)?.toUpperCase() || <User className="size-4" />}
-                </AvatarFallback>
-              </Avatar>
-              <span className="hidden max-w-28 truncate text-sm font-medium sm:inline">
-                {user?.name || 'Guest'}
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/login">Sign in</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ProfileDropdown />
       </div>
     </header>
   )
-}
-
-function cnActions() {
-  return 'ml-0 flex items-center gap-1.5 md:ml-2'
 }

@@ -3,8 +3,8 @@ import { z } from 'zod'
 export const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
-  .regex(/[A-Z]/, 'Include an uppercase letter')
   .regex(/[a-z]/, 'Include a lowercase letter')
+  .regex(/[A-Z]/, 'Include an uppercase letter')
   .regex(/[0-9]/, 'Include a number')
 
 export const loginSchema = z.object({
@@ -20,10 +20,10 @@ export const forgotPasswordSchema = z.object({
 export const resetPasswordSchema = z
   .object({
     password: passwordSchema,
-    confirmPassword: z.string().min(1, 'Confirm your password'),
+    confirmPassword: z.string(),
   })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: 'Passwords must match',
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
 
@@ -31,9 +31,9 @@ export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
     newPassword: passwordSchema,
-    confirmPassword: z.string().min(1, 'Confirm your password'),
+    confirmPassword: z.string(),
   })
-  .refine((d) => d.newPassword === d.confirmPassword, {
-    message: 'Passwords must match',
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   })

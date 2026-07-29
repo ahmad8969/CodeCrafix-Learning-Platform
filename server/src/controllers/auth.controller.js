@@ -1,21 +1,16 @@
 const authService = require('../services/auth.service')
 const { asyncHandler, sendSuccess } = require('../utils/helpers')
-const { setAuthCookies, clearAuthCookies } = require('../utils/cookies')
+const { setRefreshCookie, clearRefreshCookie, getRefreshCookie } = require('../utils/cookies')
 
 const login = asyncHandler(async (req, res) => {
   const { email, password, rememberMe } = req.body
-  const result = await authService.login({ email, password, rememberMe })
-  setAuthCookies(res, {
-    accessToken: result.accessToken,
-    refreshToken: result.refreshToken,
-    rememberMe: result.rememberMe,
-  })
+  const result = await authService.login({ email, password, rememberMe: Boolean(rememberMe) })
+  setRefreshCookie(res, result.refreshToken, Boolean(rememberMe))
   sendSuccess(
     res,
     {
-      user: result.user,
       accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
+      user: result.user,
     },
     'Logged in successfully'
   )
@@ -23,27 +18,27 @@ const login = asyncHandler(async (req, res) => {
 
 const logout = asyncHandler(async (req, res) => {
   await authService.logout(req.user?._id)
-  clearAuthCookies(res)
+  clearRefreshCookie(res)
   sendSuccess(res, null, 'Logged out successfully')
 })
 
 const refreshToken = asyncHandler(async (req, res) => {
-  const token = req.body?.refreshToken || req.cookies?.refreshToken
+  const token = getRefreshCookie(req) || req.body.refreshToken
   const result = await authService.refresh(token)
-  setAuthCookies(res, {
-    accessToken: result.accessToken,
-    refreshToken: result.refreshToken,
-    rememberMe: false,
-  })
+  setRefreshCookie(res, result.refreshToken, false)
   sendSuccess(
     res,
     {
-      user: result.user,
       accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
+      user: result.user,
     },
     'Token refreshed'
   )
+})
+
+const me = asyncHandler(async (req, res) => {
+  const user = await authService.me(req.user._id)
+  sendSuccess(res, user, 'OK')
 })
 
 const forgotPassword = asyncHandler(async (req, res) => {
@@ -52,28 +47,29 @@ const forgotPassword = asyncHandler(async (req, res) => {
 })
 
 const resetPassword = asyncHandler(async (req, res) => {
-  const result = await authService.resetPassword(req.body)
-  clearAuthCookies(res)
+  const result = await authService.resetPassword({
+    token: req.body.token,
+    password: req.body.password,
+  })
+  clearRefreshCookie(res)
   sendSuccess(res, null, result.message)
 })
 
 const changePassword = asyncHandler(async (req, res) => {
-  const result = await authService.changePassword(req.user._id, req.body)
-  clearAuthCookies(res)
+  const result = await authService.changePassword(req.user._id, {
+    currentPassword: req.body.currentPassword,
+    newPassword: req.body.newPassword,
+  })
+  clearRefreshCookie(res)
   sendSuccess(res, null, result.message)
-})
-
-const me = asyncHandler(async (req, res) => {
-  const user = await authService.me(req.user._id)
-  sendSuccess(res, user, 'OK')
 })
 
 module.exports = {
   login,
   logout,
   refreshToken,
+  me,
   forgotPassword,
   resetPassword,
   changePassword,
-  me,
 }

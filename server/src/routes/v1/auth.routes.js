@@ -1,7 +1,7 @@
 const express = require('express')
 const authController = require('../../controllers/auth.controller')
-const { validate } = require('../../middlewares/validate.middleware')
 const { protect } = require('../../middlewares/auth.middleware')
+const { validate } = require('../../middlewares/validate.middleware')
 const {
   loginValidators,
   forgotPasswordValidators,
@@ -10,6 +10,13 @@ const {
 } = require('../../validators/auth.validator')
 
 const router = express.Router()
+
+/**
+ * @openapi
+ * tags:
+ *   - name: Auth
+ *     description: Authentication & session
+ */
 
 /**
  * @openapi
@@ -67,7 +74,13 @@ router.post('/reset-password', resetPasswordValidators, validate, authController
  *     security:
  *       - bearerAuth: []
  */
-router.post('/change-password', protect, changePasswordValidators, validate, authController.changePassword)
+router.post(
+  '/change-password',
+  protect,
+  changePasswordValidators,
+  validate,
+  authController.changePassword
+)
 
 /**
  * @openapi

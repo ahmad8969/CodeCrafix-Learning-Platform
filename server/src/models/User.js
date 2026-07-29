@@ -9,8 +9,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Full name is required'],
       trim: true,
-      minlength: [2, 'Full name must be at least 2 characters'],
-      maxlength: [100, 'Full name is too long'],
+      minlength: 2,
+      maxlength: 120,
     },
     email: {
       type: String,
@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, 'Password is required'],
-      minlength: [8, 'Password must be at least 8 characters'],
+      minlength: 8,
       select: false,
     },
     profileImage: {
@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    refreshToken: {
+    refreshTokenHash: {
       type: String,
       select: false,
       default: null,
@@ -81,47 +81,47 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
   },
-  {
-    timestamps: true,
-    toJSON: {
-      transform(doc, ret) {
-        ret.id = ret._id
-        delete ret._id
-        delete ret.__v
-        delete ret.password
-        delete ret.refreshToken
-        delete ret.passwordResetToken
-        delete ret.passwordResetExpires
-        delete ret.emailVerificationToken
-        delete ret.emailVerificationExpires
-        return ret
-      },
-    },
-  }
+  { timestamps: true }
 )
 
-userSchema.pre('save', async function hashPassword(next) {
-  if (!this.isModified('password')) return next()
+userSchema.pre('save', async function hashPassword() {
+  if (!this.isModified('password')) return
   this.password = await bcrypt.hash(this.password, 12)
-  next()
 })
 
 userSchema.methods.comparePassword = function comparePassword(candidate) {
   return bcrypt.compare(candidate, this.password)
 }
 
-userSchema.methods.createPasswordResetToken = function createPasswordResetToken() {
-  const raw = crypto.randomBytes(32).toString('hex')
-  this.passwordResetToken = crypto.createHash('sha256').update(raw).digest('hex')
-  this.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
-  return raw
+userSchema.methods.toSafeObject = function toSafeObject() {
+  return {
+    id: this._id,
+    fullName: this.fullName,
+    email: this.email,
+    phoneNumber: this.phoneNumber,
+    profileImage: this.profileImage,
+    role: this.role,
+    status: this.status,
+    emailVerified: this.emailVerified,
+    lastLogin: this.lastLogin,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  }
 }
 
+/** Architecture-ready email verification token generator */
 userSchema.methods.createEmailVerificationToken = function createEmailVerificationToken() {
-  const raw = crypto.randomBytes(32).toString('hex')
-  this.emailVerificationToken = crypto.createHash('sha256').update(raw).digest('hex')
-  this.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24h
-  return raw
+  const token = crypto.randomBytes(32).toString('hex')
+  this.emailVerificationToken = crypto.createHash('sha256').update(token).digest('hex')
+  this.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  return token
+}
+
+userSchema.methods.createPasswordResetToken = function createPasswordResetToken() {
+  const token = crypto.randomBytes(32).toString('hex')
+  this.passwordResetToken = crypto.createHash('sha256').update(token).digest('hex')
+  this.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000)
+  return token
 }
 
 module.exports = mongoose.model('User', userSchema)

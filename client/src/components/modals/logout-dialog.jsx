@@ -13,7 +13,7 @@ import { ButtonLoader } from '@/components/loaders'
 export function LogoutDialog({ open, onOpenChange, onConfirm }) {
   const [loading, setLoading] = useState(false)
 
-  const confirm = async () => {
+  const handleConfirm = async () => {
     setLoading(true)
     try {
       await onConfirm?.()
@@ -24,7 +24,7 @@ export function LogoutDialog({ open, onOpenChange, onConfirm }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Sign out?</DialogTitle>
           <DialogDescription>
@@ -35,7 +35,7 @@ export function LogoutDialog({ open, onOpenChange, onConfirm }) {
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={confirm} disabled={loading}>
+          <Button variant="danger" onClick={handleConfirm} disabled={loading}>
             {loading && <ButtonLoader />}
             Logout
           </Button>

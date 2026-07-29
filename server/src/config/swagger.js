@@ -8,7 +8,7 @@ const options = {
     info: {
       title: 'CodeCrafters Learning Platform API',
       version: '1.0.0',
-      description: 'Auth + foundation APIs (Prompt 002).',
+      description: 'Prompt 002 — Authentication & RBAC + foundation health.',
     },
     servers: [{ url: `http://localhost:${config.port}` }],
     components: {
@@ -21,7 +21,7 @@ const options = {
       },
     },
   },
-  apis: ['./src/routes/**/*.js', './src/docs/*.js'],
+  apis: ['./src/routes/v1/*.js', './src/docs/*.js', './src/controllers/*.js'],
 }
 
 const specs = swaggerJsdoc(options)

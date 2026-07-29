@@ -1,5 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { authService, clearTokens, getStoredAccessToken } from '@/services/auth.service'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+import { authService } from '@/services/auth.service'
+import { ACCESS_TOKEN_KEY } from '@/constants'
 
 const AuthContext = createContext(null)
 
@@ -8,51 +16,42 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const refreshUser = useCallback(async () => {
-    if (!getStoredAccessToken() && !localStorage.getItem('codecrafters-refresh-token')) {
-      setUser(null)
-      return null
-    }
     try {
       const me = await authService.me()
       setUser(me)
       return me
     } catch {
-      try {
-        const refreshed = await authService.refreshToken()
-        setUser(refreshed.user)
-        return refreshed.user
-      } catch {
-        clearTokens()
-        setUser(null)
-        return null
-      }
+      setUser(null)
+      return null
     }
   }, [])
 
   useEffect(() => {
     let active = true
-    ;(async () => {
-      setLoading(true)
-      if (getStoredAccessToken() || localStorage.getItem('codecrafters-refresh-token')) {
+
+    async function bootstrap() {
+      try {
         try {
-          const me = await authService.me()
-          if (active) setUser(me)
+          await authService.refreshToken()
         } catch {
-          try {
-            const refreshed = await authService.refreshToken()
-            if (active) setUser(refreshed.user)
-          } catch {
-            clearTokens()
-            if (active) setUser(null)
-          }
+          // No refresh session
         }
+        if (!active) return
+        if (localStorage.getItem(ACCESS_TOKEN_KEY)) {
+          await refreshUser()
+        } else {
+          setUser(null)
+        }
+      } finally {
+        if (active) setLoading(false)
       }
-      if (active) setLoading(false)
-    })()
+    }
+
+    bootstrap()
     return () => {
       active = false
     }
-  }, [])
+  }, [refreshUser])
 
   const login = useCallback(async (credentials) => {
     const data = await authService.login(credentials)
@@ -64,9 +63,10 @@ export function AuthProvider({ children }) {
     try {
       await authService.logout()
     } catch {
-      clearTokens()
+      // ignore
+    } finally {
+      setUser(null)
     }
-    setUser(null)
   }, [])
 
   const value = useMemo(

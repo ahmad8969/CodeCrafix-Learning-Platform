@@ -1,34 +1,40 @@
 /**
- * Email service stub — architecture ready for Prompt 002+.
- * Wire Nodemailer / provider in a later prompt.
+ * Email service stub — architecture ready for SMTP/provider wiring.
+ * Prompt 002 logs messages in development instead of sending mail.
  */
 const config = require('../config')
 
 async function sendMail({ to, subject, html, text }) {
   if (config.env !== 'production') {
     console.log('[email:stub]', { to, subject, text: text || html })
+    return { accepted: [to], stub: true }
   }
-  return { accepted: [to], stub: true }
+
+  // Production: plug Nodemailer / provider here.
+  console.warn('[email] SMTP not configured — message skipped', { to, subject })
+  return { accepted: [], stub: true }
 }
 
-async function sendPasswordResetEmail(user, rawToken) {
-  const resetUrl = `${config.clientUrl}/reset-password?token=${rawToken}&email=${encodeURIComponent(user.email)}`
+async function sendPasswordResetEmail({ to, resetUrl, fullName }) {
   return sendMail({
-    to: user.email,
+    to,
     subject: 'Reset your CodeCrafters password',
-    text: `Reset your password: ${resetUrl}`,
-    html: `<p>Reset your password:</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
+    text: `Hi ${fullName},\n\nReset your password: ${resetUrl}\n\nThis link expires in 1 hour.`,
+    html: `<p>Hi ${fullName},</p><p><a href="${resetUrl}">Reset your password</a></p><p>This link expires in 1 hour.</p>`,
   })
 }
 
-async function sendEmailVerification(user, rawToken) {
-  const verifyUrl = `${config.clientUrl}/verify-email?token=${rawToken}`
+async function sendEmailVerification({ to, verifyUrl, fullName }) {
   return sendMail({
-    to: user.email,
+    to,
     subject: 'Verify your CodeCrafters email',
-    text: `Verify your email: ${verifyUrl}`,
-    html: `<p>Verify your email:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p>`,
+    text: `Hi ${fullName},\n\nVerify your email: ${verifyUrl}`,
+    html: `<p>Hi ${fullName},</p><p><a href="${verifyUrl}">Verify email</a></p>`,
   })
 }
 
-module.exports = { sendMail, sendPasswordResetEmail, sendEmailVerification }
+module.exports = {
+  sendMail,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+}

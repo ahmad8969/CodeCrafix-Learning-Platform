@@ -10,48 +10,35 @@ import {
 } from 'lucide-react'
 import { ROLES, ROUTES } from '@/constants'
 
-/** Role-based sidebar menus — module pages are placeholders only. */
-export const ROLE_MENUS = {
-  [ROLES.STUDENT]: [
-    { to: ROUTES.STUDENT, label: 'Overview', icon: LayoutDashboard, end: true },
-    { to: `${ROUTES.STUDENT}/courses`, label: 'Courses', icon: BookOpen },
-    { to: `${ROUTES.STUDENT}/assignments`, label: 'Assignments', icon: ClipboardList },
+export const NAV_BY_ROLE = {
+  [ROLES.SUPER_ADMIN]: [
+    { to: ROUTES.SUPER_ADMIN, label: 'Overview', icon: LayoutDashboard, end: true },
+    { to: `${ROUTES.SUPER_ADMIN}/users`, label: 'All Users', icon: Users },
+    { to: `${ROUTES.SUPER_ADMIN}/admins`, label: 'Admins', icon: Shield },
+    { to: `${ROUTES.SUPER_ADMIN}/courses`, label: 'Courses', icon: BookOpen },
+    { to: `${ROUTES.SUPER_ADMIN}/reports`, label: 'Reports', icon: BarChart3 },
+    { to: `${ROUTES.SUPER_ADMIN}/system`, label: 'System', icon: Settings },
+  ],
+  [ROLES.ADMIN]: [
+    { to: ROUTES.ADMIN, label: 'Overview', icon: LayoutDashboard, end: true },
+    { to: `${ROUTES.ADMIN}/users`, label: 'Users', icon: Users },
+    { to: `${ROUTES.ADMIN}/teachers`, label: 'Teachers', icon: GraduationCap },
+    { to: `${ROUTES.ADMIN}/courses`, label: 'Courses', icon: BookOpen },
+    { to: `${ROUTES.ADMIN}/system`, label: 'System', icon: Shield },
   ],
   [ROLES.TEACHER]: [
     { to: ROUTES.TEACHER, label: 'Overview', icon: LayoutDashboard, end: true },
     { to: `${ROUTES.TEACHER}/classes`, label: 'Classes', icon: Users },
     { to: `${ROUTES.TEACHER}/reviews`, label: 'Reviews', icon: ClipboardList },
+    { to: `${ROUTES.TEACHER}/courses`, label: 'Courses', icon: BookOpen },
   ],
-  [ROLES.ADMIN]: [
-    { to: ROUTES.ADMIN, label: 'Overview', icon: LayoutDashboard, end: true },
-    { to: `${ROUTES.ADMIN}/users`, label: 'Users', icon: Users },
-    { to: `${ROUTES.ADMIN}/system`, label: 'System', icon: Shield },
-  ],
-  [ROLES.SUPER_ADMIN]: [
-    { to: ROUTES.SUPER_ADMIN, label: 'Overview', icon: LayoutDashboard, end: true },
-    { to: `${ROUTES.SUPER_ADMIN}/admins`, label: 'Admins', icon: Shield },
-    { to: `${ROUTES.SUPER_ADMIN}/users`, label: 'All Users', icon: Users },
-    { to: `${ROUTES.SUPER_ADMIN}/analytics`, label: 'Analytics', icon: BarChart3 },
-    { to: `${ROUTES.SUPER_ADMIN}/courses`, label: 'Courses', icon: GraduationCap },
-    { to: ROUTES.SETTINGS, label: 'Settings', icon: Settings },
+  [ROLES.STUDENT]: [
+    { to: ROUTES.STUDENT, label: 'Overview', icon: LayoutDashboard, end: true },
+    { to: `${ROUTES.STUDENT}/courses`, label: 'Courses', icon: BookOpen },
+    { to: `${ROUTES.STUDENT}/assignments`, label: 'Assignments', icon: ClipboardList },
   ],
 }
 
-export function getMenuForRole(role) {
-  return ROLE_MENUS[role] || ROLE_MENUS[ROLES.STUDENT]
-}
-
-export function canAccessRolePath(userRole, path) {
-  if (!userRole) return false
-  if (userRole === ROLES.SUPER_ADMIN) return true
-
-  if (path.startsWith(ROUTES.SUPER_ADMIN)) return userRole === ROLES.SUPER_ADMIN
-  if (path.startsWith(ROUTES.ADMIN)) return userRole === ROLES.ADMIN || userRole === ROLES.SUPER_ADMIN
-  if (path.startsWith(ROUTES.TEACHER)) {
-    return [ROLES.TEACHER, ROLES.ADMIN, ROLES.SUPER_ADMIN].includes(userRole)
-  }
-  if (path.startsWith(ROUTES.STUDENT)) {
-    return userRole === ROLES.STUDENT || userRole === ROLES.SUPER_ADMIN
-  }
-  return true
+export function getNavForRole(role) {
+  return NAV_BY_ROLE[role] || NAV_BY_ROLE[ROLES.STUDENT]
 }

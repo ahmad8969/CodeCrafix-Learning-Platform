@@ -6,7 +6,7 @@ import { APP_NAME } from '@/constants'
 export function LoginCard({ title, description, children, footer }) {
   return (
     <PageTransition className="flex min-h-[70vh] items-center justify-center p-4">
-      <Card className="w-full max-w-md glow-border shadow-elevation-3">
+      <Card className="w-full max-w-md border-border/80 glow-border shadow-elevation-3">
         <CardHeader className="text-center">
           <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
             <Sparkles className="size-6" />

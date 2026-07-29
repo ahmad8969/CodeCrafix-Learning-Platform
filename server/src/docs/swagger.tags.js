@@ -1,8 +1,10 @@
 /**
+ * OpenAPI tag definitions for foundation docs.
+ */
+
+/**
  * @openapi
  * tags:
  *   - name: Health
- *     description: Service health
- *   - name: Auth
- *     description: Authentication and session management
+ *     description: Service health endpoints
  */

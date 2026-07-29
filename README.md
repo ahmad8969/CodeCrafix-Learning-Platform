@@ -38,21 +38,29 @@ Copy examples if needed:
 
 - Scalable `client/` + `server/` folder architecture  
 - Design system (dark default + light theme)  
-- Landing hero, auth route placeholders, role layouts (student / teacher / admin)  
-- Global shell: sidebar, navbar, footer, breadcrumb, theme toggle, search, notifications, command palette placeholder  
-- Error pages: 404, 500, unauthorized, offline  
-- Loaders: skeleton, spinner, page loader, button loader  
-- Central Axios instance + interceptors  
-- Express `/api/v1` + health only  
-- JWT utility setup (no auth flows yet)  
-- ESLint / Prettier configs  
+- Landing hero + auth pages (login, forgot/reset/change password)  
+- JWT access + refresh, RBAC (super admin / admin / teacher / student)  
+- Protected + role-based routes, Auth Context, Axios refresh interceptors  
+- Role-aware sidebar menus (module placeholders only)  
+- Express `/api/v1` health + auth APIs  
+- Docs in `docs/`  
+
+## Demo auth
+
+```bash
+cd server && npm run seed
+```
+
+Then sign in at `/login` with e.g. `student@codecrafters.dev` / `Password1`.
+
+See [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md).
 
 ## What is NOT included (later prompts)
 
-- Authentication implementation (Prompt 002)  
 - Course / student / assignment / practice modules  
-- Business dashboards  
+- Business dashboards beyond portal shells  
+- Social login  
 
 ## Docs
 
-See [`docs/`](docs/) for architecture, folder structure, and development guide.
+See [`docs/`](docs/) for architecture, auth, folder structure, and development guide.

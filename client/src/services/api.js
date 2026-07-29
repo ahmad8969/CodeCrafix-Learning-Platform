@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { apiConfig } from '@/config/api.config'
-import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, ROUTES } from '@/constants'
-import { handleApiError } from '@/utils/error'
+import { ACCESS_TOKEN_KEY, ROUTES } from '@/constants'
 
 const api = axios.create({
   baseURL: apiConfig.baseURL,
@@ -11,6 +10,17 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY)
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
 let isRefreshing = false
 let pendingQueue = []
@@ -22,18 +32,6 @@ function flushQueue(error, token = null) {
   })
   pendingQueue = []
 }
-
-api.interceptors.request.use(
-  (config) => {
-    const token =
-      localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('codecrafters-token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
 
 api.interceptors.response.use(
   (response) => response,
@@ -69,28 +67,37 @@ api.interceptors.response.use(
     isRefreshing = true
 
     try {
-      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
       const { data } = await axios.post(
         `${apiConfig.baseURL}/auth/refresh-token`,
-        refreshToken ? { refreshToken } : {},
+        {},
         { withCredentials: true }
       )
-      const payload = data?.data ?? data
-      const accessToken = payload.accessToken
-      const nextRefresh = payload.refreshToken
+      const accessToken = data?.data?.accessToken
+      if (!accessToken) throw new Error('No access token in refresh response')
 
-      if (accessToken) localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
-      if (nextRefresh) localStorage.setItem(REFRESH_TOKEN_KEY, nextRefresh)
-
+      localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
       flushQueue(null, accessToken)
       original.headers.Authorization = `Bearer ${accessToken}`
       return api(original)
     } catch (refreshError) {
       flushQueue(refreshError, null)
       localStorage.removeItem(ACCESS_TOKEN_KEY)
-      localStorage.removeItem(REFRESH_TOKEN_KEY)
-      localStorage.removeItem('codecrafters-token')
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+      const path = typeof window !== 'undefined' ? window.location.pathname : ''
+      const publicPrefixes = [
+        '/',
+        '/login',
+        '/register',
+        '/forgot-password',
+        '/reset-password',
+        '/unauthorized',
+        '/offline',
+        '/404',
+        '/500',
+      ]
+      const isPublic =
+        path === '/' ||
+        publicPrefixes.some((p) => p !== '/' && path.startsWith(p))
+      if (!isPublic) {
         window.location.assign(ROUTES.LOGIN)
       }
       return Promise.reject(refreshError)
@@ -100,5 +107,4 @@ api.interceptors.response.use(
   }
 )
 
-export { handleApiError }
 export default api

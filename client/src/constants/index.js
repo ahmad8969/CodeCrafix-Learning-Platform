@@ -9,10 +9,10 @@ export const ROLES = {
 }
 
 export const ROLE_LABELS = {
-  [ROLES.SUPER_ADMIN]: 'Super Admin',
-  [ROLES.ADMIN]: 'Admin',
-  [ROLES.TEACHER]: 'Teacher',
-  [ROLES.STUDENT]: 'Student',
+  super_admin: 'Super Admin',
+  admin: 'Admin',
+  teacher: 'Teacher',
+  student: 'Student',
 }
 
 export const ROUTES = {
@@ -27,10 +27,10 @@ export const ROUTES = {
   SERVER_ERROR: '/500',
   OFFLINE: '/offline',
   SETTINGS: '/settings',
-  STUDENT: '/student',
-  TEACHER: '/teacher',
-  ADMIN: '/admin',
   SUPER_ADMIN: '/super-admin',
+  ADMIN: '/admin',
+  TEACHER: '/teacher',
+  STUDENT: '/student',
 }
 
 export function getHomePathForRole(role) {
@@ -48,4 +48,3 @@ export function getHomePathForRole(role) {
 }
 
 export const ACCESS_TOKEN_KEY = 'codecrafters-access-token'
-export const REFRESH_TOKEN_KEY = 'codecrafters-refresh-token'

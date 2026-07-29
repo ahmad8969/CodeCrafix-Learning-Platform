@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed": "node src/utils/seed.js",
-    "lint": "eslint src --ext .js"
+    "lint": "eslint src --ext .js",
+    "seed": "node src/utils/seed.js"
   },
   "license": "ISC",
   "type": "commonjs",

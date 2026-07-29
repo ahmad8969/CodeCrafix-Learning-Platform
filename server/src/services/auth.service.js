@@ -1,42 +1,35 @@
-const crypto = require('crypto')
 const User = require('../models/User')
 const { ApiError } = require('../utils/helpers')
-const { USER_STATUS } = require('../constants')
 const {
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
-  getTokenPayload,
+  hashToken,
 } = require('../utils/jwt')
+const { USER_STATUS } = require('../constants')
+const config = require('../config')
 const { sendPasswordResetEmail } = require('./email.service')
 
-function sanitizeUser(user) {
-  return {
-    id: user._id.toString(),
-    fullName: user.fullName,
-    email: user.email,
-    phoneNumber: user.phoneNumber,
-    profileImage: user.profileImage,
-    role: user.role,
-    status: user.status,
-    emailVerified: user.emailVerified,
-    lastLogin: user.lastLogin,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-  }
+function tokenPayload(user) {
+  return { id: user._id.toString(), role: user.role, email: user.email }
 }
 
 async function issueTokens(user, rememberMe = false) {
-  const payload = getTokenPayload(user)
+  const payload = tokenPayload(user)
   const accessToken = signAccessToken(payload)
   const refreshToken = signRefreshToken(payload, rememberMe)
-  user.refreshToken = refreshToken
+
+  user.refreshTokenHash = hashToken(refreshToken)
+  user.lastLogin = new Date()
   await user.save({ validateBeforeSave: false })
-  return { accessToken, refreshToken }
+
+  return { accessToken, refreshToken, user: user.toSafeObject() }
 }
 
 async function login({ email, password, rememberMe = false }) {
-  const user = await User.findOne({ email: email.toLowerCase() }).select('+password +refreshToken')
+  const user = await User.findOne({ email: email.toLowerCase() }).select(
+    '+password +refreshTokenHash'
+  )
   if (!user || !(await user.comparePassword(password))) {
     throw new ApiError(401, 'Invalid email or password')
   }
@@ -48,19 +41,12 @@ async function login({ email, password, rememberMe = false }) {
     throw new ApiError(403, 'Your account is inactive')
   }
 
-  user.lastLogin = new Date()
-  const tokens = await issueTokens(user, rememberMe)
-
-  return {
-    user: sanitizeUser(user),
-    ...tokens,
-    rememberMe: Boolean(rememberMe),
-  }
+  return issueTokens(user, rememberMe)
 }
 
 async function logout(userId) {
   if (!userId) return
-  await User.findByIdAndUpdate(userId, { refreshToken: null })
+  await User.findByIdAndUpdate(userId, { refreshTokenHash: null })
 }
 
 async function refresh(refreshToken) {
@@ -73,91 +59,92 @@ async function refresh(refreshToken) {
     throw new ApiError(401, 'Invalid or expired refresh token')
   }
 
-  const user = await User.findById(decoded.id).select('+refreshToken')
-  if (!user || !user.refreshToken || user.refreshToken !== refreshToken) {
+  const user = await User.findById(decoded.id).select('+refreshTokenHash')
+  if (!user || !user.refreshTokenHash) {
     throw new ApiError(401, 'Session expired. Please sign in again.')
+  }
+
+  const incomingHash = hashToken(refreshToken)
+  if (incomingHash !== user.refreshTokenHash) {
+    // Possible token reuse — clear session (rotation architecture)
+    user.refreshTokenHash = null
+    await user.save({ validateBeforeSave: false })
+    throw new ApiError(401, 'Refresh token reuse detected. Please sign in again.')
   }
 
   if (user.status !== USER_STATUS.ACTIVE) {
     throw new ApiError(403, 'Account is not active')
   }
 
-  // Refresh token rotation (architecture ready)
-  const tokens = await issueTokens(user, false)
-  return {
-    user: sanitizeUser(user),
-    ...tokens,
-  }
+  // Rotate refresh token
+  return issueTokens(user, false)
 }
 
 async function me(userId) {
   const user = await User.findById(userId)
   if (!user) throw new ApiError(404, 'User not found')
-  return sanitizeUser(user)
+  return user.toSafeObject()
 }
 
 async function forgotPassword(email) {
   const user = await User.findOne({ email: email.toLowerCase() })
-  // Always respond success to avoid email enumeration
+  // Always return success shape to avoid email enumeration
   if (!user) {
-    return { message: 'If that email exists, a reset link has been sent.', resetToken: null }
+    return { message: 'If that email exists, a reset link has been sent.' }
   }
 
-  const rawToken = user.createPasswordResetToken()
+  const resetToken = user.createPasswordResetToken()
   await user.save({ validateBeforeSave: false })
-  await sendPasswordResetEmail(user, rawToken)
 
-  const payload = {
-    message: 'If that email exists, a reset link has been sent.',
+  const resetUrl = `${config.clientUrl}/reset-password?token=${resetToken}`
+  await sendPasswordResetEmail({
+    to: user.email,
+    fullName: user.fullName,
+    resetUrl,
+  })
+
+  const result = { message: 'If that email exists, a reset link has been sent.' }
+  if (config.env !== 'production') {
+    result.resetToken = resetToken
+    result.resetUrl = resetUrl
   }
-
-  // Dev helper so reset can be tested without SMTP
-  if (process.env.NODE_ENV !== 'production') {
-    payload.resetToken = rawToken
-    payload.email = user.email
-  }
-
-  return payload
+  return result
 }
 
-async function resetPassword({ token, email, password }) {
-  if (!token || !password) throw new ApiError(400, 'Token and new password are required')
-
-  const hashed = crypto.createHash('sha256').update(token).digest('hex')
-  const query = {
+async function resetPassword({ token, password }) {
+  const hashed = hashToken(token)
+  const user = await User.findOne({
     passwordResetToken: hashed,
     passwordResetExpires: { $gt: Date.now() },
-  }
-  if (email) query.email = email.toLowerCase()
+  }).select('+passwordResetToken +passwordResetExpires +password')
 
-  const user = await User.findOne(query).select('+passwordResetToken +passwordResetExpires')
   if (!user) throw new ApiError(400, 'Invalid or expired reset token')
 
   user.password = password
   user.passwordResetToken = null
   user.passwordResetExpires = null
-  user.refreshToken = null
+  user.refreshTokenHash = null
   await user.save()
 
-  return { message: 'Password reset successfully' }
+  return { message: 'Password reset successful. You can sign in now.' }
 }
 
 async function changePassword(userId, { currentPassword, newPassword }) {
-  const user = await User.findById(userId).select('+password')
+  const user = await User.findById(userId).select('+password +refreshTokenHash')
   if (!user) throw new ApiError(404, 'User not found')
 
-  const ok = await user.comparePassword(currentPassword)
-  if (!ok) throw new ApiError(400, 'Current password is incorrect')
+  if (!(await user.comparePassword(currentPassword))) {
+    throw new ApiError(400, 'Current password is incorrect')
+  }
 
   user.password = newPassword
-  user.refreshToken = null
+  user.refreshTokenHash = null
   await user.save()
 
-  return { message: 'Password changed successfully' }
+  return { message: 'Password changed successfully. Please sign in again.' }
 }
 
 module.exports = {
-  sanitizeUser,
   login,
   logout,
   refresh,
