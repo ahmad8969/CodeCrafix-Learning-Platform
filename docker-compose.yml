@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: codecrafters-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: codecrafters-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/codecrafters
+      JWT_SECRET: change_me_in_production
+      CLIENT_URL: http://localhost:5173
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:

@@ -1,0 +1,17 @@
+{
+  "name": "codecrafters-learning-platform",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CodeCrafters Learning Platform — MERN foundation (Prompt 001)",
+  "scripts": {
+    "setup": "npm install && npm install --prefix client && npm install --prefix server",
+    "dev": "concurrently -k -n server,client -c teal,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
