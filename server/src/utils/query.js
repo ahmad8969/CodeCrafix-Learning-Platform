@@ -10,11 +10,30 @@ function slugify(text = '') {
 /**
  * Parse list query: page, limit, search, sort, filters, includeDeleted
  */
-function parseListQuery(query = {}) {
+const DEFAULT_SORT_FIELDS = new Set([
+  'createdAt',
+  'updatedAt',
+  'title',
+  'name',
+  'fullName',
+  'status',
+  'priority',
+  'publishedAt',
+  'dueDate',
+  'startsAt',
+  'order',
+])
+
+function escapeRegex(value = '') {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function parseListQuery(query = {}, { allowedSortFields = DEFAULT_SORT_FIELDS } = {}) {
   const page = Math.max(1, Number(query.page) || 1)
   const limit = Math.min(100, Math.max(1, Number(query.limit) || 10))
-  const search = (query.search || query.q || '').trim()
-  const sortBy = query.sortBy || 'createdAt'
+  const search = escapeRegex((query.search || query.q || '').trim())
+  const requestedSort = String(query.sortBy || 'createdAt')
+  const sortBy = allowedSortFields.has(requestedSort) ? requestedSort : 'createdAt'
   const sortOrder = query.sortOrder === 'asc' ? 1 : -1
   const includeDeleted = query.includeDeleted === 'true' || query.includeDeleted === true
 
@@ -40,4 +59,4 @@ function buildPagedResult({ items, total, page, limit }) {
   }
 }
 
-module.exports = { slugify, parseListQuery, buildPagedResult }
+module.exports = { slugify, parseListQuery, buildPagedResult, escapeRegex }

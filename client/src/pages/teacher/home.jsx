@@ -32,6 +32,18 @@ export default function TeacherHomePage() {
           <Button variant="outline" asChild>
             <Link to={`${ROUTES.TEACHER}/quizzes`}>Quizzes</Link>
           </Button>
+          <Button variant="outline" asChild>
+            <Link to={`${ROUTES.TEACHER}/achievements`}>Achievements</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to={`${ROUTES.TEACHER}/fee-status`}>Fee status</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to={`${ROUTES.TEACHER}/messages`}>Messages</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to={`${ROUTES.TEACHER}/helpdesk`}>Helpdesk</Link>
+          </Button>
           <Button asChild>
             <Link to={`${ROUTES.TEACHER}/reviews`}>Open reviews</Link>
           </Button>

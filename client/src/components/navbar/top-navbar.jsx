@@ -1,9 +1,10 @@
-import { Bell, Command, Menu, Moon, PanelLeft, Search, Sun } from 'lucide-react'
+import { Command, Menu, Moon, PanelLeft, Search, Sun } from 'lucide-react'
 import { useTheme } from '@/contexts/theme-context'
 import { useSidebar } from '@/contexts/sidebar-context'
 import { Button } from '@/components/ui/button'
 import { Breadcrumb } from '@/components/common/breadcrumb'
 import { ProfileDropdown } from '@/components/common/profile-dropdown'
+import { NotificationCenter } from '@/components/communication/notification-center'
 
 export function TopNavbar({ breadcrumbs = [], onOpenCommand }) {
   const { theme, toggleTheme } = useTheme()
@@ -43,9 +44,7 @@ export function TopNavbar({ breadcrumbs = [], onOpenCommand }) {
         <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
           {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Notifications">
-          <Bell className="size-5" />
-        </Button>
+        <NotificationCenter />
         <ProfileDropdown />
       </div>
     </header>

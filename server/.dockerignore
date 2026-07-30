@@ -1,0 +1,11 @@
+node_modules
+uploads/*
+!uploads/.gitkeep
+.env
+.env.*
+!.env.example
+coverage
+src/logs
+*.log
+tests
+vitest.config.js

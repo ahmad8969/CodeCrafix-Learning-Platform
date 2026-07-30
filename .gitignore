@@ -66,8 +66,6 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
-.env.*
 !.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -141,3 +139,17 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Backups & dumps
+backups/
+*.dump
+*.archive
+*.tar.gz
+!docs/**
+
+# Local ops
+.server/uploads/**
+server/uploads/**
+!server/uploads/.gitkeep
+
+config.bat

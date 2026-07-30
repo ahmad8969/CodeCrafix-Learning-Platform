@@ -1,0 +1,25 @@
+services:
+  mongo:
+    ports: []
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+
+  api:
+    environment:
+      NODE_ENV: production
+      MONGO_URI: ${MONGO_URI}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      CLIENT_URL: ${CLIENT_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      TRUST_PROXY: 1
+      ENABLE_SWAGGER: "false"
+      MULTI_TENANT: ${MULTI_TENANT:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    env_file:
+      - ./.env
+
+  web:
+    environment:
+      NODE_ENV: production

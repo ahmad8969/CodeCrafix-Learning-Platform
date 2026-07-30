@@ -263,6 +263,18 @@ async function updateProgress(userId, lessonId, { scrollPercent, completed } = {
       await learningPath.markTopicCompleted(userId, lesson.topic, lesson.course)
     }
     await studentProgress.recomputeStudentProgress(userId, lesson.course)
+    try {
+      const gamificationService = require('./gamification.service')
+      await gamificationService.awardXp({
+        userId,
+        courseId: lesson.course,
+        event: gamificationService.XP_EVENTS.LESSON_COMPLETION,
+        reason: 'Lesson completed',
+        meta: { refId: `lesson-${userId}-${lessonId}`, lessonId },
+      })
+    } catch {
+      /* non-blocking */
+    }
   }
   return view
 }

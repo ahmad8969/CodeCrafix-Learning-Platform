@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { PublicLayout } from '@/layouts/public-layout'
 import { StudentLayout } from '@/layouts/student-layout'
@@ -6,75 +7,119 @@ import { AdminLayout } from '@/layouts/admin-layout'
 import { SuperAdminLayout } from '@/layouts/super-admin-layout'
 import { ProtectedRoute, GuestOnlyRoute } from '@/routes/protected-route'
 import { ROLES, ROUTES } from '@/constants'
+import { PageLoader } from '@/components/loaders'
+import * as P from '@/routes/lazy-pages'
 
-import LandingPage from '@/pages/landing'
-import LoginPage from '@/pages/auth/login'
-import RegisterPage from '@/pages/auth/register'
-import ForgotPasswordPage from '@/pages/auth/forgot-password'
-import ResetPasswordPage from '@/pages/auth/reset-password'
-import ChangePasswordPage from '@/pages/auth/change-password'
-import NotFoundPage from '@/pages/errors/not-found'
-import ServerErrorPage from '@/pages/errors/server-error'
-import UnauthorizedPage from '@/pages/errors/unauthorized'
-import OfflinePage from '@/pages/errors/offline'
-import SettingsPage from '@/pages/settings'
-import StudentHomePage from '@/pages/student/home'
-import StudentAssignmentsPage from '@/pages/student/assignments'
-import TeacherHomePage from '@/pages/teacher/home'
-import TeacherReviewsPage from '@/pages/teacher/reviews'
-import AdminHomePage from '@/pages/admin/home'
-import AdminUsersPage from '@/pages/admin/users'
-import AdminSystemPage from '@/pages/admin/system'
-import SuperAdminHomePage from '@/pages/super-admin/home'
-import SuperAdminPlaceholderPage from '@/pages/super-admin/placeholder'
-import { PortalPlaceholder } from '@/pages/_shared/portal-placeholder'
-import CoursesListPage from '@/pages/courses/courses-list'
-import CourseCreatePage from '@/pages/courses/course-create'
-import CourseEditPage from '@/pages/courses/course-edit'
-import CourseDetailsPage from '@/pages/courses/course-details'
-import CategoriesListPage from '@/pages/categories/categories-list'
-import CategoryCreatePage, { CategoryEditPage } from '@/pages/categories/category-form'
-import BatchesListPage from '@/pages/batches/batches-list'
-import CurriculumBuilderPage from '@/pages/curriculum/curriculum-builder'
-import LessonEditPage from '@/pages/curriculum/lesson-edit'
-import LessonViewPage from '@/pages/curriculum/lesson-view'
-import StudentLearnPage from '@/pages/curriculum/student-learn'
-import PracticeQuestionsListPage from '@/pages/practice/questions-list'
-import PracticeQuestionFormPage from '@/pages/practice/question-form'
-import PracticeAnalyticsPage from '@/pages/practice/analytics'
-import { PracticePreviewPage } from '@/pages/practice/solve'
-import StudentPracticeHomePage, { StudentQuestionPage } from '@/pages/practice/student-home'
-import AssignmentsListPage from '@/pages/assignments/assignments-list'
-import AssignmentFormPage from '@/pages/assignments/assignment-form'
-import AssignmentAnalyticsPage from '@/pages/assignments/analytics'
-import StudentAssignmentDetailPage from '@/pages/assignments/student-detail'
-import AssignmentSubmissionsPage, { TeacherReviewPage } from '@/pages/assignments/teacher-review'
-import QuizzesListPage from '@/pages/quizzes/quizzes-list'
-import QuizFormPage from '@/pages/quizzes/quiz-form'
-import QuizAnalyticsPage from '@/pages/quizzes/analytics'
-import StudentQuizzesPage from '@/pages/student/quizzes'
-import StudentQuizDetailPage, { QuizAttemptPage } from '@/pages/quizzes/take-quiz'
-import QuizAttemptsPage, { QuizDetailHubPage } from '@/pages/quizzes/attempts'
-import QuizPoolPage from '@/pages/quizzes/pool'
-import EnrollmentsListPage from '@/pages/enrollment/enrollments-list'
-import EnrollmentFormPage from '@/pages/enrollment/enrollment-form'
-import EnrollmentDetailPage from '@/pages/enrollment/enrollment-detail'
-import EnrollmentAnalyticsPage from '@/pages/enrollment/analytics'
-import StudentEnrollmentsPage, { StudentProfilePage } from '@/pages/enrollment/student-home'
-import BatchDetailPage from '@/pages/batches/batch-detail'
-import LiveClassesListPage, { StudentClassesPage } from '@/pages/live/classes-list'
-import LiveClassFormPage, { LiveClassDetailPage } from '@/pages/live/class-form'
-import ClassAttendancePage, { StudentAttendancePage } from '@/pages/live/attendance'
-import AcademicCalendarPage from '@/pages/live/calendar'
-import AnnouncementsListPage, {
+const {
+  LandingPage,
+  LoginPage,
+  RegisterPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  ChangePasswordPage,
+  NotFoundPage,
+  ServerErrorPage,
+  UnauthorizedPage,
+  OfflinePage,
+  SettingsPage,
+  StudentHomePage,
+  StudentAssignmentsPage,
+  TeacherHomePage,
+  TeacherReviewsPage,
+  AdminHomePage,
+  AdminUsersPage,
+  AdminSystemPage,
+  SuperAdminHomePage,
+  SuperAdminPlaceholderPage,
+  PortalPlaceholder,
+  CoursesListPage,
+  CourseCreatePage,
+  CourseEditPage,
+  CourseDetailsPage,
+  CategoriesListPage,
+  CategoryCreatePage,
+  CategoryEditPage,
+  BatchesListPage,
+  CurriculumBuilderPage,
+  LessonEditPage,
+  LessonViewPage,
+  StudentLearnPage,
+  PracticeQuestionsListPage,
+  PracticeQuestionFormPage,
+  PracticeAnalyticsPage,
+  PracticePreviewPage,
+  StudentPracticeHomePage,
+  StudentQuestionPage,
+  AssignmentsListPage,
+  AssignmentFormPage,
+  AssignmentAnalyticsPage,
+  StudentAssignmentDetailPage,
+  AssignmentSubmissionsPage,
+  TeacherReviewPage,
+  QuizzesListPage,
+  QuizFormPage,
+  QuizAnalyticsPage,
+  StudentQuizzesPage,
+  StudentQuizDetailPage,
+  QuizAttemptPage,
+  QuizAttemptsPage,
+  QuizDetailHubPage,
+  QuizPoolPage,
+  EnrollmentsListPage,
+  EnrollmentFormPage,
+  EnrollmentDetailPage,
+  EnrollmentAnalyticsPage,
+  StudentEnrollmentsPage,
+  StudentProfilePage,
+  BatchDetailPage,
+  LiveClassesListPage,
+  StudentClassesPage,
+  LiveClassFormPage,
+  LiveClassDetailPage,
+  ClassAttendancePage,
+  StudentAttendancePage,
+  AcademicCalendarPage,
+  AnnouncementsListPage,
   AnnouncementFormPage,
   AnnouncementDetailPage,
-} from '@/pages/live/announcements'
-import LiveAdminDashboardPage from '@/pages/live/admin-dashboard'
-
+  LiveAdminDashboardPage,
+  CertificateVerifyPage,
+  CertificatesListPage,
+  CertificateDetailPage,
+  CertificateTemplatesPage,
+  CertificateRulesPage,
+  StudentPortfolioPage,
+  PublicPortfolioPage,
+  LeaderboardPage,
+  GamificationAdminPage,
+  TeacherCertificatesPage,
+  FinanceDashboardPage,
+  AdmissionsPage,
+  FeePlansPage,
+  StudentFeesPage,
+  FeeAccountDetailPage,
+  ReceiptDetailPage,
+  ReceiptVerifyPage,
+  ExpensesPage,
+  FinanceReportsPage,
+  TeacherFeeStatusPage,
+  MessagesPage,
+  ForumsPage,
+  ForumThreadPage,
+  HelpdeskPage,
+  TicketDetailPage,
+  CrmPage,
+  CareerPortalPage,
+  JobDetailPage,
+  CareerAdminPage,
+  SurveysPage,
+  SurveyTakePage,
+  AlumniPage,
+} = P
 
 export function AppRouter() {
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<LandingPage />} />
@@ -86,13 +131,24 @@ export function AppRouter() {
             </GuestOnlyRoute>
           }
         />
-        <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+        <Route
+          path={ROUTES.REGISTER}
+          element={
+            <GuestOnlyRoute>
+              <RegisterPage />
+            </GuestOnlyRoute>
+          }
+        />
         <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
         <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
         <Route path={ROUTES.UNAUTHORIZED} element={<UnauthorizedPage />} />
         <Route path={ROUTES.SERVER_ERROR} element={<ServerErrorPage />} />
         <Route path={ROUTES.OFFLINE} element={<OfflinePage />} />
         <Route path="/404" element={<NotFoundPage />} />
+        <Route path="/verify/certificate/:token" element={<CertificateVerifyPage />} />
+        <Route path="/verify/certificate" element={<CertificateVerifyPage />} />
+        <Route path="/verify/receipt/:token" element={<ReceiptVerifyPage />} />
+        <Route path="/portfolio/:slug" element={<PublicPortfolioPage />} />
       </Route>
 
       <Route
@@ -138,6 +194,23 @@ export function AppRouter() {
         <Route path="practice/questions/:questionId" element={<StudentQuestionPage />} />
         <Route path="learn/:courseId" element={<StudentLearnPage />} />
         <Route path="learn/:courseId/lessons/:lessonId" element={<LessonViewPage />} />
+        <Route path="portfolio" element={<StudentPortfolioPage />} />
+        <Route path="certificates" element={<CertificatesListPage />} />
+        <Route path="certificates/:id" element={<CertificateDetailPage />} />
+        <Route path="leaderboard" element={<LeaderboardPage />} />
+        <Route path="fees" element={<StudentFeesPage />} />
+        <Route path="fees/accounts/:id" element={<FeeAccountDetailPage />} />
+        <Route path="fees/receipts/:id" element={<ReceiptDetailPage />} />
+        <Route path="messages" element={<MessagesPage />} />
+        <Route path="forums" element={<ForumsPage />} />
+        <Route path="forums/:id" element={<ForumThreadPage />} />
+        <Route path="helpdesk" element={<HelpdeskPage />} />
+        <Route path="helpdesk/:id" element={<TicketDetailPage />} />
+        <Route path="career" element={<CareerPortalPage />} />
+        <Route path="career/jobs/:id" element={<JobDetailPage />} />
+        <Route path="surveys" element={<SurveysPage />} />
+        <Route path="surveys/:id" element={<SurveyTakePage />} />
+        <Route path="alumni" element={<AlumniPage />} />
       </Route>
 
       <Route
@@ -188,6 +261,21 @@ export function AppRouter() {
         <Route path="quizzes/:id/edit" element={<QuizFormPage />} />
         <Route path="quizzes/:id/attempts" element={<QuizAttemptsPage />} />
         <Route path="quizzes/:id" element={<QuizDetailHubPage />} />
+        <Route path="achievements" element={<TeacherCertificatesPage />} />
+        <Route path="certificates" element={<CertificatesListPage />} />
+        <Route path="certificates/:id" element={<CertificateDetailPage />} />
+        <Route path="leaderboard" element={<LeaderboardPage />} />
+        <Route path="fee-status" element={<TeacherFeeStatusPage />} />
+        <Route path="messages" element={<MessagesPage />} />
+        <Route path="forums" element={<ForumsPage />} />
+        <Route path="forums/:id" element={<ForumThreadPage />} />
+        <Route path="helpdesk" element={<HelpdeskPage />} />
+        <Route path="helpdesk/:id" element={<TicketDetailPage />} />
+        <Route path="career" element={<CareerPortalPage />} />
+        <Route path="career/jobs/:id" element={<JobDetailPage />} />
+        <Route path="surveys" element={<SurveysPage />} />
+        <Route path="surveys/:id" element={<SurveyTakePage />} />
+        <Route path="alumni" element={<AlumniPage />} />
       </Route>
 
       <Route
@@ -252,6 +340,31 @@ export function AppRouter() {
         <Route path="quizzes/:id/edit" element={<QuizFormPage />} />
         <Route path="quizzes/:id/attempts" element={<QuizAttemptsPage />} />
         <Route path="quizzes/:id" element={<QuizDetailHubPage />} />
+        <Route path="gamification" element={<GamificationAdminPage />} />
+        <Route path="certificates" element={<CertificatesListPage />} />
+        <Route path="certificates/:id" element={<CertificateDetailPage />} />
+        <Route path="certificate-templates" element={<CertificateTemplatesPage />} />
+        <Route path="certificate-rules" element={<CertificateRulesPage />} />
+        <Route path="leaderboard" element={<LeaderboardPage />} />
+        <Route path="finance" element={<FinanceDashboardPage />} />
+        <Route path="finance/admissions" element={<AdmissionsPage />} />
+        <Route path="finance/fee-plans" element={<FeePlansPage />} />
+        <Route path="finance/expenses" element={<ExpensesPage />} />
+        <Route path="finance/reports" element={<FinanceReportsPage />} />
+        <Route path="finance/accounts/:id" element={<FeeAccountDetailPage />} />
+        <Route path="finance/receipts/:id" element={<ReceiptDetailPage />} />
+        <Route path="messages" element={<MessagesPage />} />
+        <Route path="forums" element={<ForumsPage />} />
+        <Route path="forums/:id" element={<ForumThreadPage />} />
+        <Route path="helpdesk" element={<HelpdeskPage />} />
+        <Route path="helpdesk/:id" element={<TicketDetailPage />} />
+        <Route path="crm" element={<CrmPage />} />
+        <Route path="career" element={<CareerPortalPage />} />
+        <Route path="career/admin" element={<CareerAdminPage />} />
+        <Route path="career/jobs/:id" element={<JobDetailPage />} />
+        <Route path="surveys" element={<SurveysPage />} />
+        <Route path="surveys/:id" element={<SurveyTakePage />} />
+        <Route path="alumni" element={<AlumniPage />} />
       </Route>
 
       <Route
@@ -311,10 +424,38 @@ export function AppRouter() {
         <Route path="quizzes/:id" element={<QuizDetailHubPage />} />
         <Route path="reports" element={<SuperAdminPlaceholderPage title="Reports" />} />
         <Route path="system" element={<SuperAdminPlaceholderPage title="System" />} />
+        <Route path="gamification" element={<GamificationAdminPage />} />
+        <Route path="certificates" element={<CertificatesListPage />} />
+        <Route path="certificates/:id" element={<CertificateDetailPage />} />
+        <Route path="certificate-templates" element={<CertificateTemplatesPage />} />
+        <Route path="certificate-rules" element={<CertificateRulesPage />} />
+        <Route path="leaderboard" element={<LeaderboardPage />} />
+        <Route path="finance" element={<FinanceDashboardPage />} />
+        <Route path="finance/admissions" element={<AdmissionsPage />} />
+        <Route path="finance/fee-plans" element={<FeePlansPage />} />
+        <Route path="finance/expenses" element={<ExpensesPage />} />
+        <Route path="finance/reports" element={<FinanceReportsPage />} />
+        <Route path="finance/accounts/:id" element={<FeeAccountDetailPage />} />
+        <Route path="finance/receipts/:id" element={<ReceiptDetailPage />} />
+        <Route path="messages" element={<MessagesPage />} />
+        <Route path="forums" element={<ForumsPage />} />
+        <Route path="forums/:id" element={<ForumThreadPage />} />
+        <Route path="helpdesk" element={<HelpdeskPage />} />
+        <Route path="helpdesk/:id" element={<TicketDetailPage />} />
+        <Route path="crm" element={<CrmPage />} />
+        <Route path="career" element={<CareerPortalPage />} />
+        <Route path="career/admin" element={<CareerAdminPage />} />
+        <Route path="career/jobs/:id" element={<JobDetailPage />} />
+        <Route path="surveys" element={<SurveysPage />} />
+        <Route path="surveys/:id" element={<SurveyTakePage />} />
+        <Route path="alumni" element={<AlumniPage />} />
       </Route>
 
-      <Route path="*" element={<NotFoundPage />} />
+      <Route element={<PublicLayout />}>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
+    </Suspense>
   )
 }
 

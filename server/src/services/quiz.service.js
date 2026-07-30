@@ -11,7 +11,6 @@ const { selectQuestionsForQuiz, publicQuestion } = require('./quiz-selection.ser
 const { gradeAttempt } = require('./quiz-grading.service')
 const notificationService = require('./notification.service')
 const progressService = require('./progress.service')
-const { StudentGamification } = require('../models/Gamification')
 
 function isStaff(role) {
   return [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TEACHER].includes(role)
@@ -252,35 +251,60 @@ async function saveProgress(userId, attemptId, { answers }, reqContext) {
 
 async function awardQuizXp(userId, courseId, quiz, result) {
   const badges = []
-  let xp = 0
+  let baseXp = 0
   if (result.passed) {
-    xp = quiz.xpReward || 75
+    baseXp = quiz.xpReward || 75
     if (result.percentage >= 100) {
       badges.push('perfect_score')
-      xp += 25
+      baseXp += 25
     }
   }
   if (result.timeTakenSeconds > 0 && quiz.timeLimitMinutes > 0) {
     const limitSec = quiz.timeLimitMinutes * 60
     if (result.timeTakenSeconds <= limitSec * 0.5 && result.passed) {
       badges.push('fast_finisher')
-      xp += 15
+      baseXp += 15
     }
   }
 
-  if (xp > 0 && courseId) {
-    await StudentGamification.findOneAndUpdate(
-      { user: userId, course: courseId },
-      {
-        $inc: { xp, dailyXp: xp, weeklyXp: xp },
-        $addToSet: { badgesUnlocked: { $each: badges } },
-        $setOnInsert: { user: userId, course: courseId, level: 1 },
-      },
-      { upsert: true }
-    )
+  let xpAwarded = 0
+  if (result.passed && courseId) {
+    try {
+      const gamificationService = require('./gamification.service')
+      const awarded = await gamificationService.awardXp({
+        userId,
+        courseId,
+        event: gamificationService.XP_EVENTS.QUIZ_COMPLETION,
+        amount: baseXp,
+        reason: `Quiz: ${quiz.title || 'completed'}`,
+        meta: {
+          refId: `quiz-${userId}-${quiz._id}-${result.attemptId || ''}`,
+          quizId: quiz._id,
+          perfect: result.percentage >= 100,
+          percentage: result.percentage,
+        },
+      })
+      xpAwarded = awarded.xpAwarded || 0
+      for (const key of badges) {
+        await gamificationService.awardBadge({ userId, badgeKey: key, source: 'quiz' })
+      }
+    } catch {
+      /* fallback to legacy course ledger */
+      const { StudentGamification } = require('../models/Gamification')
+      await StudentGamification.findOneAndUpdate(
+        { user: userId, course: courseId },
+        {
+          $inc: { xp: baseXp, dailyXp: baseXp, weeklyXp: baseXp },
+          $addToSet: { badgesUnlocked: { $each: badges } },
+          $setOnInsert: { user: userId, course: courseId, level: 1 },
+        },
+        { upsert: true }
+      )
+      xpAwarded = baseXp
+    }
   }
 
-  return { xpAwarded: xp, badgesEarned: badges }
+  return { xpAwarded, badgesEarned: badges }
 }
 
 async function submitAttempt(userId, attemptId, { answers, auto = false } = {}, reqContext) {

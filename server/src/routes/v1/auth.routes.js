@@ -2,6 +2,7 @@ const express = require('express')
 const authController = require('../../controllers/auth.controller')
 const { protect } = require('../../middlewares/auth.middleware')
 const { validate } = require('../../middlewares/validate.middleware')
+const { authLimiter } = require('../../middlewares/rate-limit.middleware')
 const {
   loginValidators,
   forgotPasswordValidators,
@@ -25,7 +26,7 @@ const router = express.Router()
  *     tags: [Auth]
  *     summary: Login
  */
-router.post('/login', loginValidators, validate, authController.login)
+router.post('/login', authLimiter, loginValidators, validate, authController.login)
 
 /**
  * @openapi
@@ -45,7 +46,7 @@ router.post('/logout', protect, authController.logout)
  *     tags: [Auth]
  *     summary: Refresh access token
  */
-router.post('/refresh-token', authController.refreshToken)
+router.post('/refresh-token', authLimiter, authController.refreshToken)
 
 /**
  * @openapi
@@ -54,7 +55,13 @@ router.post('/refresh-token', authController.refreshToken)
  *     tags: [Auth]
  *     summary: Request password reset
  */
-router.post('/forgot-password', forgotPasswordValidators, validate, authController.forgotPassword)
+router.post(
+  '/forgot-password',
+  authLimiter,
+  forgotPasswordValidators,
+  validate,
+  authController.forgotPassword
+)
 
 /**
  * @openapi
@@ -63,7 +70,13 @@ router.post('/forgot-password', forgotPasswordValidators, validate, authControll
  *     tags: [Auth]
  *     summary: Reset password with token
  */
-router.post('/reset-password', resetPasswordValidators, validate, authController.resetPassword)
+router.post(
+  '/reset-password',
+  authLimiter,
+  resetPasswordValidators,
+  validate,
+  authController.resetPassword
+)
 
 /**
  * @openapi

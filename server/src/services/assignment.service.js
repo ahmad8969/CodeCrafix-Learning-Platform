@@ -348,6 +348,22 @@ async function submitAssignment(userId, assignmentId, payload, reqContext) {
     meta: { assignmentId: assignment._id, attemptNumber },
   })
 
+  try {
+    const gamificationService = require('./gamification.service')
+    await gamificationService.awardXp({
+      userId,
+      courseId: assignment.course._id || assignment.course,
+      event: gamificationService.XP_EVENTS.ASSIGNMENT_SUBMISSION,
+      reason: `Assignment submitted: ${assignment.title}`,
+      meta: {
+        refId: `assignment-submit-${userId}-${assignment._id}-${attemptNumber}`,
+        assignmentId: assignment._id,
+      },
+    })
+  } catch {
+    /* non-blocking */
+  }
+
   return submission
 }
 
@@ -480,6 +496,24 @@ async function gradeSubmission(submissionId, payload, reviewerId, reqContext) {
     marks >= assignment.passingMarks
   ) {
     // Future: unlock nextTopic for student enrollment path
+  }
+
+  if (status === SUBMISSION_STATUS.APPROVED) {
+    try {
+      const gamificationService = require('./gamification.service')
+      await gamificationService.awardXp({
+        userId: studentId,
+        courseId: submission.course,
+        event: gamificationService.XP_EVENTS.ASSIGNMENT_APPROVAL,
+        reason: `Assignment approved: ${assignment.title}`,
+        meta: {
+          refId: `assignment-approve-${studentId}-${submission._id}`,
+          submissionId: submission._id,
+        },
+      })
+    } catch {
+      /* non-blocking */
+    }
   }
 
   return submission

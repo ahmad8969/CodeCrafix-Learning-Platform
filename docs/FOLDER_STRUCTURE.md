@@ -1,63 +1,36 @@
-# Folder Structure
-
-## Repository
+# Folder Structure (v1.0 Enterprise)
 
 ```text
-CodeCrafters-Learning-Platform/
-├── client/                 # Vite React SPA
-├── server/                 # Express API
-├── docs/                   # Project documentation
-├── docker-compose.yml
-├── package.json            # Root scripts (concurrently)
-├── start.bat               # Windows one-click start
-└── README.md
-```
+client/
+  public/                 # robots.txt, sitemap.xml, icons
+  src/
+    components/           # UI + domain widgets + common (DocumentHead, EmptyState, ErrorBoundary)
+    contexts/             # auth, theme, sidebar, providers
+    i18n/                 # locale + RTL architecture
+    layouts/              # public + portal shells
+    pages/                # feature pages (lazy-loaded)
+    routes/               # AppRouter + lazy-pages
+    services/             # API clients
+    test/                 # Vitest setup
 
-## Client (`client/src`)
+server/
+  src/
+    config/               # env, swagger, feature flags, saas defaults
+    constants/
+    controllers/
+    jobs/                 # queue-ready workers
+    middlewares/          # auth, RBAC, rate-limit, sanitize, tenant, feature-flag
+    models/
+    repositories/
+    routes/v1/
+    services/
+    utils/                # logger, cache, jwt, query
+    validators/
+  tests/                  # Vitest unit/integration
+  uploads/                # auth-gated static files
 
-```text
-assets/
-components/
-  ui/           # Primitives (button, card, dialog, …)
-  common/       # Breadcrumb, footer, command palette
-  forms/
-  tables/
-  cards/
-  charts/
-  editor/
-  sidebar/
-  navbar/
-  buttons/
-  modals/
-  loaders/
-layouts/        # Public + Student/Teacher/Admin portals
-pages/          # Route screens (placeholders only)
-hooks/
-contexts/       # Theme, Auth (stub), Sidebar, providers
-services/       # Axios API + health service
-store/          # Future client stores
-routes/         # App router + protected route stub
-utils/
-constants/
-styles/         # globals.css (design tokens)
-config/
-lib/            # cn(), helpers
-```
-
-## Server (`server/src`)
-
-```text
-config/         # env, db, swagger
-controllers/    # health only (Prompt 001)
-routes/v1/      # /api/v1/*
-middlewares/    # error, auth stub
-models/         # empty (later)
-services/       # empty (later)
-repositories/   # empty (later)
-validators/     # empty (later)
-utils/          # jwt setup, helpers
-constants/
-docs/           # swagger tags
-logs/
-uploads/        # (repo root sibling)
+docs/                     # architecture, security, deploy, role guides, release notes
+scripts/                  # backup/restore
+.github/workflows/        # CI/CD
+docker-compose*.yml
 ```

@@ -27,6 +27,7 @@ const options = {
 const specs = swaggerJsdoc(options)
 
 function setupSwagger(app) {
+  if (!config.enableSwagger) return
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }))
 }
 
