@@ -14,7 +14,12 @@
     "seed:assignments": "node src/utils/seed-assignments.js",
     "seed:quiz": "node src/utils/seed-quiz.js",
     "seed:enrollment": "node src/utils/seed-enrollment.js",
-    "seed:live": "node src/utils/seed-live-classes.js"
+    "seed:live": "node src/utils/seed-live-classes.js",
+    "seed:certificates": "node src/utils/seed-certificates.js",
+    "seed:finance": "node src/utils/seed-finance.js",
+    "seed:communication": "node src/utils/seed-communication.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "license": "ISC",
   "type": "commonjs",
@@ -25,6 +30,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.6.1",
     "express-validator": "^7.3.2",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
@@ -37,6 +43,8 @@
   "devDependencies": {
     "eslint": "^9.39.2",
     "nodemon": "^3.1.14",
-    "prettier": "^3.7.4"
+    "prettier": "^3.7.4",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.10"
   }
 }

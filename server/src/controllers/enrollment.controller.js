@@ -202,12 +202,23 @@ const studentProfile = asyncHandler(async (req, res) => {
     { courseScope: 'all', userId: req.user._id, role: req.user.role }
   )
   const continueLearning = await studentProgress.getContinueLearning(studentId)
+  let certificates = []
+  try {
+    const certificateService = require('../services/certificate.service')
+    const listed = await certificateService.listCertificates(
+      { userId: studentId, limit: 20 },
+      { userId: req.user._id, role: req.user.role }
+    )
+    certificates = listed.items || []
+  } catch {
+    certificates = []
+  }
   sendSuccess(res, {
     student: student.toSafeObject(),
     enrollments: enrollments.items,
     continueLearning,
     attendancePlaceholder: null,
-    certificatesPlaceholder: [],
+    certificates,
   })
 })
 

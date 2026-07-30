@@ -2,6 +2,7 @@ const { verifyAccessToken } = require('../utils/jwt')
 const { ApiError, asyncHandler } = require('../utils/helpers')
 const User = require('../models/User')
 const { USER_STATUS, ROLES } = require('../constants')
+const config = require('../config')
 
 /**
  * Authentication middleware — requires valid access JWT.
@@ -28,6 +29,21 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 
   req.user = user
+  req.instituteId = user.institute?._id || user.institute || null
+
+  if (config.multiTenant && user.role !== ROLES.SUPER_ADMIN && !req.instituteId) {
+    throw new ApiError(403, 'Account is not assigned to a tenant')
+  }
+
+  const requestedTenant = req.get('x-institute-id')
+  if (
+    config.multiTenant &&
+    requestedTenant &&
+    user.role !== ROLES.SUPER_ADMIN &&
+    String(requestedTenant) !== String(req.instituteId)
+  ) {
+    throw new ApiError(403, 'Cross-tenant access denied')
+  }
   next()
 })
 

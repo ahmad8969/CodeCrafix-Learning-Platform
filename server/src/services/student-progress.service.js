@@ -142,6 +142,20 @@ async function recomputeStudentProgress(studentId, courseId) {
         eventType: 'course_completed',
         value: 100,
       })
+      try {
+        const gamificationService = require('./gamification.service')
+        await gamificationService.awardXp({
+          userId: studentId,
+          courseId,
+          event: gamificationService.XP_EVENTS.COURSE_COMPLETION,
+          reason: 'Course completed',
+          meta: { refId: `course-complete-${studentId}-${courseId}` },
+        })
+        const certificateService = require('./certificate.service')
+        await certificateService.tryAutoIssueOnCourseComplete(studentId, courseId)
+      } catch {
+        /* non-blocking */
+      }
     }
     await enrollment.save()
   }

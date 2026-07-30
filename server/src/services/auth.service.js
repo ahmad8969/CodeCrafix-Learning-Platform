@@ -15,7 +15,7 @@ function tokenPayload(user) {
 }
 
 async function issueTokens(user, rememberMe = false) {
-  const payload = tokenPayload(user)
+  const payload = { ...tokenPayload(user), rememberMe: Boolean(rememberMe) }
   const accessToken = signAccessToken(payload)
   const refreshToken = signRefreshToken(payload, rememberMe)
 
@@ -76,8 +76,8 @@ async function refresh(refreshToken) {
     throw new ApiError(403, 'Account is not active')
   }
 
-  // Rotate refresh token
-  return issueTokens(user, false)
+  // Rotate refresh token while preserving remember-me policy from prior session
+  return issueTokens(user, Boolean(decoded.rememberMe))
 }
 
 async function me(userId) {

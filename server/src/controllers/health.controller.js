@@ -21,10 +21,24 @@ const getHealth = asyncHandler(async (req, res) => {
       status: 'ok',
       uptime: process.uptime(),
       database: states[dbState] || 'unknown',
+      version: '1.0.0-enterprise',
       timestamp: new Date().toISOString(),
     },
-    'Server Running'
+    'Server running'
   )
 })
 
-module.exports = { getHealth }
+const getReadiness = asyncHandler(async (req, res) => {
+  const ready = mongoose.connection.readyState === 1
+  return res.status(ready ? 200 : 503).json({
+    success: ready,
+    message: ready ? 'Service ready' : 'Service not ready',
+    data: {
+      status: ready ? 'ready' : 'not_ready',
+      database: ready ? 'connected' : 'unavailable',
+      timestamp: new Date().toISOString(),
+    },
+  })
+})
+
+module.exports = { getHealth, getReadiness }

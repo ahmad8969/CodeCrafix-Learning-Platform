@@ -6,9 +6,9 @@ import { APP_NAME, APP_TAGLINE, ROUTES } from '@/constants'
 import { useTheme } from '@/contexts/theme-context'
 
 const features = [
-  { icon: Code2, title: 'Learn by building', body: 'Interactive coding experiences — coming soon.' },
-  { icon: Zap, title: 'Fast & modern', body: 'Premium SaaS-grade UI foundation ready for modules.' },
-  { icon: Sparkles, title: 'Role-ready', body: 'Student, teacher, and admin shells scaffolded.' },
+  { icon: Code2, title: 'Learn by building', body: 'Curriculum, coding workspace, practice, quizzes, and assignments.' },
+  { icon: Zap, title: 'Operate at scale', body: 'Finance, CRM, helpdesk, live classes, and certificates in one SaaS LMS.' },
+  { icon: Sparkles, title: 'Role-ready', body: 'Student, teacher, admin, and super-admin experiences — v1.0 Enterprise.' },
 ]
 
 export default function LandingPage() {
@@ -70,8 +70,8 @@ export default function LandingPage() {
             <span className="mt-2 block text-foreground">Build skills. Ship confidence.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-            A premium coding education platform foundation — dark-first, responsive, and ready for
-            authentication and learning modules in the next prompts.
+            CodeCrafters Learning Platform v1.0 Enterprise — a production-ready LMS for institutes
+            with learning, communication, finance, and career workflows.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
@@ -90,7 +90,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Features</h2>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Placeholder feature cards — business capabilities land in upcoming prompts.
+            Enterprise capabilities shipped for students, teachers, and administrators.
           </p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature, i) => {

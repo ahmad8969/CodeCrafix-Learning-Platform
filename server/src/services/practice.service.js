@@ -387,6 +387,20 @@ async function submitQuestion(userId, questionId, payload, reqContext) {
       value: evaluation.score,
       meta: { questionId: question._id, xp: xp.xpAwarded },
     })
+    try {
+      const gamificationService = require('./gamification.service')
+      const awarded = await gamificationService.awardXp({
+        userId,
+        courseId: question.course,
+        event: gamificationService.XP_EVENTS.PRACTICE_COMPLETION,
+        amount: xp.xpAwarded || undefined,
+        reason: 'Practice challenge passed',
+        meta: { refId: `practice-${userId}-${question._id}`, questionId: question._id },
+      })
+      xp.xpAwarded = awarded.xpAwarded || xp.xpAwarded
+    } catch {
+      /* non-blocking */
+    }
   }
 
   return {

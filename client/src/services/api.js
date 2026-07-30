@@ -93,6 +93,8 @@ api.interceptors.response.use(
         '/offline',
         '/404',
         '/500',
+        '/verify',
+        '/portfolio',
       ]
       const isPublic =
         path === '/' ||

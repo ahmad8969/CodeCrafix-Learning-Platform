@@ -8,6 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { learningService, workspaceService } from '@/services/curriculum.service'
 import { assignmentService } from '@/services/assignment.service'
 import { quizService } from '@/services/quiz.service'
+import { gamificationService } from '@/services/certificate.service'
+import { GamificationSummaryStrip } from '@/components/certificates/certificate-widgets'
 import { ROUTES } from '@/constants'
 
 function formatMinutes(seconds = 0) {
@@ -30,6 +32,10 @@ export default function StudentHomePage() {
   const { data: quizzes } = useQuery({
     queryKey: ['quiz-student-dash'],
     queryFn: () => quizService.studentDashboard(),
+  })
+  const { data: gamification } = useQuery({
+    queryKey: ['gamification-me'],
+    queryFn: () => gamificationService.me(),
   })
 
   const continueItem = data?.continueLearning
@@ -71,8 +77,27 @@ export default function StudentHomePage() {
           <Button asChild variant="outline">
             <Link to={`${ROUTES.STUDENT}/quizzes`}>Quizzes</Link>
           </Button>
+          <Button asChild variant="outline">
+            <Link to={`${ROUTES.STUDENT}/fees`}>My fees</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to={`${ROUTES.STUDENT}/messages`}>Messages</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to={`${ROUTES.STUDENT}/helpdesk`}>Helpdesk</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to={`${ROUTES.STUDENT}/career`}>Career</Link>
+          </Button>
         </div>
       </div>
+
+      {gamification && (
+        <GamificationSummaryStrip
+          summary={gamification}
+          portfolioHref={`${ROUTES.STUDENT}/portfolio`}
+        />
+      )}
 
       {(quizzes?.availableQuizzes || []).length > 0 && (
         <Card>

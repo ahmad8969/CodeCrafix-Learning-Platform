@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Allow: /verify/
+Allow: /portfolio/
+Disallow: /student/
+Disallow: /teacher/
+Disallow: /admin/
+Disallow: /super-admin/
+Disallow: /settings
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /change-password
+
+Sitemap: /sitemap.xml

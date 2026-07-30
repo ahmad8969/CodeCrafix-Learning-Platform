@@ -1,76 +1,74 @@
-# CodeCrafters Learning Platform
+# CodeCrafters Learning Platform v1.0 Enterprise
 
-Production-ready **MERN LMS** through Prompt 011: live classes, attendance, academic calendar, announcements, plus enrollments, quizzes, and practice.
+Production-ready **MERN SaaS LMS** through Prompt 015: full academic + finance + communication stack with security hardening, performance optimization, testing scaffolding, DevOps packaging, and SaaS readiness.
 
 ## Stack
 
 | Layer | Tech |
 |-------|------|
-| Client | React 19, Vite, JavaScript, Tailwind, React Router, TanStack Query, RHF, Zod, Framer Motion, shadcn-style UI, Lucide, React Hot Toast |
-| Server | Node.js, Express, MongoDB, Mongoose, JWT, Swagger, Morgan, Helmet, CORS, Dotenv, Cookie Parser, Compression |
+| Client | React 19, Vite, JavaScript/JSX, Tailwind, React Router, TanStack Query, RHF, Zod, Framer Motion |
+| Server | Node.js, Express, MongoDB, Mongoose, JWT, Helmet, rate limiting, Swagger (gated) |
+| Ops | Docker Compose, Nginx, GitHub Actions CI/CD placeholders, backup scripts |
 
 ## Quick start
 
 ```bash
-# 1) Install (once)
 npm run setup
-
-# 2) MongoDB (required for full health DB status)
 docker compose up mongo -d
-
-# 3) Seed demo users + sample courses + curriculum
 npm run seed --prefix server
 npm run seed:courses --prefix server
 npm run seed:curriculum --prefix server
-
-# 4) Run API + UI together
+npm run seed:communication --prefix server
 npm run dev
-# or double-click start.bat on Windows
 ```
 
-- App: http://localhost:5173  
-- Health: http://localhost:5000/api/v1/health  
-- Swagger: http://localhost:5000/api/docs  
+- App: http://localhost:5173
+- Health: http://localhost:5000/api/v1/health
+- Ready: http://localhost:5000/api/v1/ready
 
-## Environment
+## Docker full stack
 
-Copy examples if needed:
+```bash
+docker compose up --build
+```
 
-- `client/.env.example` → `VITE_API_URL`
-- `server/.env.example` → `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`
+Web on http://localhost:8080
 
-## Included so far
+## Quality gates
 
-- Scalable `client/` + `server/` folder architecture  
-- Design system (dark default + light theme)  
-- Landing + auth (JWT access/refresh, RBAC)  
-- **Course management:** categories, courses, batches, settings, soft delete/restore, publish/archive  
-- **Curriculum builder:** modules → weeks → topics → lessons → resources, nested DnD, lesson editor/viewer  
-- **Premium lesson viewer:** 3-column learning UX, code blocks, bookmarks, notes, reading progress  
-- **Live coding workspace:** Monaco HTML/CSS/JS lab, live preview, console, auto-save, ZIP download  
-- **Practice engine:** coding + MCQ questions, run/submit evaluation, question bank, analytics  
-- **Assignments:** multi-type submissions, coding lab, file uploads, teacher review, rubrics, notifications  
-- **Quiz & Assessment Engine:** MCQ / T-F / fill-blank / coding quizzes, timer + auto-submit, analysis, leaderboards, teacher/admin dashboards  
-- **Enrollment & Learning Path:** manual/bulk/code enrollments, batch roster & schedule, topic unlock rules, progress timeline, continue learning  
-- **Live Classes & Attendance:** schedule/start/end classes, multi-provider meeting stubs, attendance + rules, academic calendar, announcements, recordings  
-- Premium course tables/cards, multi-step course form, admin dashboard stats  
-- Docs in `docs/`  
+```bash
+npm run lint
+npm test
+npm run build
+```
 
 ## Demo auth
 
-```bash
-cd server && npm run seed && npm run seed:courses && npm run seed:curriculum && npm run seed:practice && npm run seed:assignments && npm run seed:quiz && npm run seed:enrollment && npm run seed:live
-```
+`admin@codecrafters.dev` / `Password1` (after seed)
 
-Sign in at `/login` with e.g. `admin@codecrafters.dev` / `Password1`.
+## Documentation
 
-See docs including [ENROLLMENT_LEARNING_PATH.md](docs/ENROLLMENT_LEARNING_PATH.md) and [LIVE_CLASSES_ATTENDANCE.md](docs/LIVE_CLASSES_ATTENDANCE.md).
+- [SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)
+- [DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- [SECURITY.md](docs/SECURITY.md)
+- [TESTING.md](docs/TESTING.md)
+- [ENVIRONMENT_VARIABLES.md](docs/ENVIRONMENT_VARIABLES.md)
+- [SAAS.md](docs/SAAS.md)
+- [BACKUP.md](docs/BACKUP.md)
+- [RELEASE_NOTES_v1.0.md](docs/RELEASE_NOTES_v1.0.md)
+- Role guides: Admin / Teacher / Student
+- Domain docs: Communication, Finance, Certificates, Live Classes, etc.
 
-## What is NOT included (later prompts)
+## Included (v1.0)
 
-- Certificates, AI code review  
-- Payments, marketplace  
+Auth/RBAC · Courses/Curriculum · Practice · Assignments · Quizzes · Enrollments · Live Classes · Certificates/Gamification · Finance ERP · Communication Hub/CRM/Career · Production hardening
 
-## Docs
+## Intentionally deferred
 
-See [`docs/`](docs/) for architecture, live classes, enrollment, practice, assignments, quizzes, auth, and courses.
+- Payment gateway billing / marketplace
+- External job APIs
+- AI career coach / AI code review
+- Real-time video calling
+- Full Playwright suite (architecture prepared)
+
+**END OF IMPLEMENTATION — CodeCrafters Learning Platform v1.0 Enterprise**

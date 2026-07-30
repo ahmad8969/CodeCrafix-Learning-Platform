@@ -2,14 +2,23 @@
   "name": "codecrafters-learning-platform",
   "private": true,
   "version": "1.0.0",
-  "description": "CodeCrafters Learning Platform — MERN foundation (Prompt 001)",
+  "description": "CodeCrafters Learning Platform v1.0 Enterprise",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "setup": "npm install && npm install --prefix client && npm install --prefix server",
     "dev": "concurrently -k -n server,client -c teal,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev:client": "npm run dev --prefix client",
     "dev:server": "npm run dev --prefix server",
     "build": "npm run build --prefix client",
-    "start": "npm run dev"
+    "start": "npm run start --prefix server",
+    "lint": "npm run lint --prefix client && npm run lint --prefix server",
+    "test": "npm test --prefix server && npm test --prefix client",
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "backup": "bash scripts/backup.sh",
+    "backup:win": "powershell -ExecutionPolicy Bypass -File scripts/backup.ps1"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

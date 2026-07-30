@@ -141,3 +141,16 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Backups & dumps
+backups/
+*.dump
+*.archive
+*.tar.gz
+!docs/**
+
+# Local ops
+.server/uploads/**
+server/uploads/**
+!server/uploads/.gitkeep
+
